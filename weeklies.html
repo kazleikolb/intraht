@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="light" lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>IntraHT | Weekly</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: "#000000",
+        background: "#fdf8f8",
+        secondary: "#5d5f5f",
+        "brand-orange": "#ff5c00"
+      },
+      fontFamily: {
+        sans: ["Inter"]
+      }
+    }
+  }
+}
+</script>
+
+<style>
+body { background:#fdf8f8; font-family:Inter,sans-serif; }
+.material-symbols-outlined { font-size:18px; }
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<aside class="bg-white h-screen w-64 border-r fixed left-0 top-0 flex flex-col p-4">
+  <div class="mb-6 font-bold text-xl">IntraHT</div>
+
+  <nav class="space-y-2 text-sm">
+    <a href="dashboard.html" class="block p-2 hover:bg-zinc-100">Dashboard</a>
+    <a href="weeklies.html" class="block p-2 bg-zinc-100 font-semibold border-l-4 border-brand-orange">Weeklies</a>
+    <a href="tasks.html" class="block p-2 hover:bg-zinc-100">Aufgaben</a>
+    <a href="calendar.html" class="block p-2 hover:bg-zinc-100">Kalender</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="ml-64">
+
+<!-- Header -->
+<header class="flex justify-between items-center px-6 h-14 border-b bg-white">
+  <h1 class="font-bold">Weekly Meeting</h1>
+
+  <div class="flex gap-3">
+    <button id="completeWeekly" class="bg-brand-orange text-white px-4 py-1 text-sm rounded">
+      Meeting abschließen
+    </button>
+  </div>
+</header>
+
+<!-- Content -->
+<div class="grid grid-cols-12 gap-6 p-6">
+
+<!-- Agenda -->
+<div class="col-span-3 bg-white p-4 border rounded">
+
+<h3 class="text-xs font-bold mb-4 uppercase text-zinc-500">Agenda</h3>
+
+<div id="agendaList" class="space-y-3">
+
+<div class="p-3 border-l-4 border-brand-orange bg-zinc-50">
+  <div class="text-sm font-semibold">Thema Beispiel</div>
+  <div class="text-xs text-zinc-500">Verantwortlich: Sascha</div>
+</div>
+
+</div>
+
+<button id="addAgenda" class="mt-4 w-full border-dashed border p-2 text-sm">
+  + Thema hinzufügen
+</button>
+
+</div>
+
+<!-- Workspace -->
+<div class="col-span-6 bg-white p-6 border rounded flex flex-col gap-6">
+
+<!-- Aufgaben -->
+<div>
+<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Aufgaben</h3>
+
+<input id="newTaskInput" placeholder="Neue Aufgabe eingeben..."
+class="w-full border p-3 rounded mb-3"/>
+
+<div id="taskList" class="space-y-2">
+
+<div class="flex items-center gap-2">
+<input type="checkbox"/>
+<span class="text-sm">Beispiel Aufgabe</span>
+</div>
+
+</div>
+</div>
+
+<!-- Entscheidungen -->
+<div>
+<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Entscheidungen</h3>
+
+<input id="decisionInput" placeholder="Entscheidung festhalten..."
+class="w-full border p-3 rounded mb-3"/>
+
+<div id="decisionList" class="space-y-2 text-sm"></div>
+</div>
+
+<!-- Kommentare -->
+<div>
+<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Kommentare</h3>
+
+<div id="commentList" class="space-y-3 mb-3"></div>
+
+<input id="commentInput" placeholder="Kommentar schreiben..."
+class="w-full border p-3 rounded"/>
+</div>
+
+</div>
+
+<!-- Right Panel -->
+<div class="col-span-3 bg-white p-4 border rounded flex flex-col gap-6">
+
+<!-- Carry Over -->
+<div>
+<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Carry Over</h3>
+
+<div id="carryOverList" class="text-sm text-zinc-600">
+Offene Aufgaben werden automatisch übernommen.
+</div>
+</div>
+
+<!-- Protokoll -->
+<div>
+<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Protokoll</h3>
+
+<button id="exportPdf" class="w-full border p-2 text-sm">
+PDF exportieren
+</button>
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+<script>
+
+/* ===== TASKS ===== */
+document.getElementById("newTaskInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const val = e.target.value.trim();
+    if (!val) return;
+
+    const el = document.createElement("div");
+    el.className = "flex items-center gap-2";
+    el.innerHTML = `<input type="checkbox"><span>${val}</span>`;
+
+    document.getElementById("taskList").appendChild(el);
+    e.target.value = "";
+  }
+});
+
+/* ===== DECISIONS ===== */
+document.getElementById("decisionInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const val = e.target.value.trim();
+    if (!val) return;
+
+    const el = document.createElement("div");
+    el.textContent = val;
+
+    document.getElementById("decisionList").appendChild(el);
+    e.target.value = "";
+  }
+});
+
+/* ===== COMMENTS ===== */
+document.getElementById("commentInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const val = e.target.value.trim();
+    if (!val) return;
+
+    const el = document.createElement("div");
+    el.className = "bg-zinc-100 p-2 rounded text-sm";
+    el.textContent = val;
+
+    document.getElementById("commentList").appendChild(el);
+    e.target.value = "";
+  }
+});
+
+/* ===== AGENDA ===== */
+document.getElementById("addAgenda").onclick = () => {
+  const title = prompt("Thema:");
+  if (!title) return;
+
+  const el = document.createElement("div");
+  el.className = "p-3 border-l-4 border-brand-orange bg-zinc-50";
+  el.innerHTML = `<div class="text-sm font-semibold">${title}</div>`;
+
+  document.getElementById("agendaList").appendChild(el);
+};
+
+/* ===== PDF EXPORT (Placeholder) ===== */
+document.getElementById("exportPdf").onclick = () => {
+  alert("PDF Export wird später implementiert");
+};
+
+/* ===== COMPLETE WEEKLY ===== */
+document.getElementById("completeWeekly").onclick = () => {
+  if (confirm("Meeting wirklich abschließen?")) {
+    alert("Weekly abgeschlossen (API folgt)");
+  }
+};
+
+</script>
+
+</body>
+</html>
