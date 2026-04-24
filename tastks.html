@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html class="light" lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>IntraHT | Aufgaben</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#000000",
+            background: "#fdf8f8",
+            secondary: "#5d5f5f",
+            outline: "#747878",
+            "outline-variant": "#c4c7c7",
+            "surface-container-low": "#f7f3f2",
+            "brand-orange": "#ff5c00",
+            error: "#ba1a1a"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #f7f3f2;
+      font-family: Inter, sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+  </style>
+</head>
+
+<body class="text-on-surface">
+
+  <aside class="bg-white h-screen w-64 border-r fixed left-0 top-0 z-40 border-zinc-100 flex flex-col py-4 gap-2">
+    <div class="px-6 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-white">
+          <span class="material-symbols-outlined text-[18px]">dashboard</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold uppercase tracking-widest leading-none">IntraHT</h1>
+          <p class="text-[10px] text-zinc-500 font-bold tracking-widest uppercase">Executive Hub</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex-1 space-y-1">
+      <a class="flex items-center gap-3 px-6 py-2.5 text-zinc-500 hover:bg-zinc-50 text-[13px] font-medium" href="dashboard.html">
+        <span class="material-symbols-outlined text-[18px]">dashboard_customize</span> Dashboard
+      </a>
+
+      <a class="flex items-center gap-3 px-6 py-2.5 text-zinc-500 hover:bg-zinc-50 text-[13px] font-medium" href="weeklies.html">
+        <span class="material-symbols-outlined text-[18px]">event_upcoming</span> Weeklies
+      </a>
+
+      <a class="flex items-center gap-3 px-6 py-2.5 bg-zinc-50 text-zinc-950 border-r-2 border-brand-orange text-[13px] font-semibold" href="tasks.html">
+        <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span> Aufgaben
+      </a>
+
+      <a class="flex items-center gap-3 px-6 py-2.5 text-zinc-500 hover:bg-zinc-50 text-[13px] font-medium" href="calendar.html">
+        <span class="material-symbols-outlined text-[18px]">calendar_month</span> Kalender
+      </a>
+
+      <a class="flex items-center gap-3 px-6 py-2.5 text-zinc-500 hover:bg-zinc-50 text-[13px] font-medium" href="search.html">
+        <span class="material-symbols-outlined text-[18px]">manage_search</span> Suche
+      </a>
+    </nav>
+
+    <div class="mt-auto border-t border-zinc-100 pt-4 space-y-1">
+      <a class="flex items-center gap-3 px-6 py-2 text-zinc-500 hover:bg-zinc-50 text-[13px] font-medium" href="archive.html">
+        <span class="material-symbols-outlined text-[18px]">inventory_2</span> Archiv
+      </a>
+
+      <a class="flex items-center gap-3 px-6 py-2 text-zinc-500 hover:bg-zinc-50 text-[13px] font-medium" href="settings.html">
+        <span class="material-symbols-outlined text-[18px]">settings</span> Einstellungen
+      </a>
+    </div>
+  </aside>
+
+  <main class="ml-64 min-h-screen">
+
+    <header class="bg-white/80 backdrop-blur-md fixed top-0 right-0 left-64 z-30 flex items-center justify-between px-6 h-14 border-b border-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+      <div class="flex items-center gap-8">
+        <span class="text-lg font-black tracking-tighter">IntraHT</span>
+
+        <div class="relative group">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 text-[18px]">search</span>
+          <input
+            id="globalSearch"
+            class="bg-zinc-50 border-none rounded-lg pl-10 pr-4 py-1.5 text-sm w-80 focus:ring-1 focus:ring-brand-orange/20"
+            placeholder="Aufgaben, Kommentare, Entscheidungen suchen..."
+            type="search"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button class="flex items-center justify-center w-8 h-8 rounded hover:bg-zinc-50">
+          <span class="material-symbols-outlined text-zinc-600 text-[18px]">notifications</span>
+        </button>
+
+        <button id="logoutButton" class="flex items-center justify-center w-8 h-8 rounded hover:bg-zinc-50">
+          <span class="material-symbols-outlined text-zinc-600 text-[18px]">logout</span>
+        </button>
+
+        <button id="createTaskTop" class="bg-brand-orange text-white px-4 py-1.5 rounded-lg text-sm font-semibold active:scale-95 transition-transform">
+          Neue Aufgabe
+        </button>
+
+        <div id="userInitials" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-[11px] font-bold">
+          HT
+        </div>
+      </div>
+    </header>
+
+    <div class="pt-20 px-8 pb-12">
+
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <nav class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-bold text-secondary uppercase tracking-wider">Operations</span>
+            <span class="material-symbols-outlined text-outline text-[12px]">chevron_right</span>
+            <span class="text-xs font-bold text-primary uppercase tracking-wider">Aufgabenmanagement</span>
+          </nav>
+          <h2 class="text-[32px] leading-10 font-bold tracking-tight">Aufgaben</h2>
+          <p class="text-sm text-secondary mt-1">
+            Verantwortlichkeiten, Fristen, Reviews, Kommentare und Aktivitätshistorie.
+          </p>
+        </div>
+
+        <div class="flex items-center bg-white border border-outline-variant p-1 rounded-lg">
+          <button id="listViewButton" class="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white rounded text-xs font-bold">
+            <span class="material-symbols-outlined text-[16px]">view_list</span> Liste
+          </button>
+          <button id="kanbanViewButton" class="flex items-center gap-2 px-3 py-1.5 text-secondary hover:text-primary text-xs font-bold">
+            <span class="material-symbols-outlined text-[16px]">grid_view</span> Kanban
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-8">
+
+        <div class="col-span-12 lg:col-span-9 space-y-8">
+
+          <div class="grid grid-cols-4 gap-4">
+            <div class="bg-white p-4 border border-outline-variant rounded-lg card-shadow">
+              <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Offen</p>
+              <p id="kpiOpen" class="text-[32px] leading-10 font-bold text-brand-orange">0</p>
+            </div>
+
+            <div class="bg-white p-4 border border-outline-variant rounded-lg card-shadow">
+              <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Blockiert</p>
+              <p id="kpiBlocked" class="text-[32px] leading-10 font-bold text-primary">0</p>
+            </div>
+
+            <div class="bg-white p-4 border border-outline-variant rounded-lg card-shadow">
+              <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Zur Prüfung</p>
+              <p id="kpiReview" class="text-[32px] leading-10 font-bold text-primary">0</p>
+            </div>
+
+            <div class="bg-white p-4 border border-outline-variant rounded-lg card-shadow">
+              <p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Überfällig</p>
+              <p id="kpiOverdue" class="text-[32px] leading-10 font-bold text-red-600">0</p>
+            </div>
+          </div>
+
+          <section class="bg-white border border-outline-variant rounded-lg card-shadow overflow-hidden">
+
+            <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+              <h3 class="text-[20px] leading-7 font-semibold">Aufgabenliste</h3>
+
+              <div class="flex items-center gap-3">
+                <select id="filterScope" class="text-xs border-zinc-200 rounded focus:ring-0">
+                  <option value="mine">Nur Beteiligte</option>
+                  <option value="all">Alle anzeigen</option>
+                </select>
+
+                <select id="filterStatus" class="text-xs border-zinc-200 rounded focus:ring-0">
+                  <option value="">Alle Status</option>
+                  <option value="open">Offen</option>
+                  <option value="in_progress">In Bearbeitung</option>
+                  <option value="blocked">Blockiert</option>
+                  <option value="review">Zur Prüfung</option>
+                  <option value="done">Erledigt</option>
+                  <option value="deferred">Zurückgestellt</option>
+                </select>
+
+                <select id="filterPriority" class="text-xs border-zinc-200 rounded focus:ring-0">
+                  <option value="">Alle Prioritäten</option>
+                  <option value="low">Niedrig</option>
+                  <option value="medium">Mittel</option>
+                  <option value="high">Hoch</option>
+                  <option value="critical">Kritisch</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead class="bg-zinc-50 border-b border-zinc-100">
+                  <tr>
+                    <th class="px-6 py-3 text-[11px] font-bold text-secondary uppercase tracking-widest">Aufgabe</th>
+                    <th class="px-4 py-3 text-[11px] font-bold text-secondary uppercase tracking-widest">Status</th>
+                    <th class="px-4 py-3 text-[11px] font-bold text-secondary uppercase tracking-widest">Priorität</th>
+                    <th class="px-4 py-3 text-[11px] font-bold text-secondary uppercase tracking-widest">Verantwortlich</th>
+                    <th class="px-4 py-3 text-[11px] font-bold text-secondary uppercase tracking-widest">Frist</th>
+                    <th class="px-6 py-3 text-[11px] font-bold text-secondary uppercase tracking-widest text-right">Aktion</th>
+                  </tr>
+                </thead>
+
+                <tbody id="taskTableBody" class="divide-y divide-zinc-50">
+                  <tr>
+                    <td class="px-6 py-4">
+                      <div>
+                        <p class="text-sm font-semibold text-primary">Keine Live-Aufgaben geladen</p>
+                        <p class="text-[11px] text-secondary">Diese Tabelle wird später durch `api/tasks.php` befüllt.</p>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4">
+                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-zinc-100 text-primary text-[10px] font-bold uppercase rounded">
+                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span> Offen
+                      </span>
+                    </td>
+                    <td class="px-4 py-4">
+                      <span class="px-2 py-0.5 border border-brand-orange text-brand-orange text-[10px] font-bold uppercase rounded">Hoch</span>
+                    </td>
+                    <td class="px-4 py-4">
+                      <div class="w-7 h-7 rounded-full border-2 border-white bg-zinc-100 flex items-center justify-center text-[10px] font-bold">HT</div>
+                    </td>
+                    <td class="px-4 py-4">
+                      <p class="text-[13px] text-zinc-600">—</p>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <button class="material-symbols-outlined text-zinc-400 hover:text-primary text-[18px]">more_horiz</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="kanbanBoard" class="hidden grid grid-cols-4 gap-4">
+            <div class="bg-white border border-outline-variant rounded-lg p-4 card-shadow">
+              <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Offen</h4>
+              <div class="text-sm text-zinc-500">Kanban-Karten werden später dynamisch geladen.</div>
+            </div>
+            <div class="bg-white border border-outline-variant rounded-lg p-4 card-shadow">
+              <h4 class="text-xs font-bold uppercase tracking-widest mb-4">In Bearbeitung</h4>
+            </div>
+            <div class="bg-white border border-outline-variant rounded-lg p-4 card-shadow">
+              <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Zur Prüfung</h4>
+            </div>
+            <div class="bg-white border border-outline-variant rounded-lg p-4 card-shadow">
+              <h4 class="text-xs font-bold uppercase tracking-widest mb-4">Erledigt</h4>
+            </div>
+          </section>
+
+        </div>
+
+        <aside class="col-span-12 lg:col-span-3 space-y-4">
+
+          <section class="bg-white border border-outline-variant rounded-lg card-shadow">
+            <div class="px-6 py-4 border-b border-zinc-100">
+              <h3 class="text-xs font-bold uppercase tracking-widest">Neue Aufgabe</h3>
+            </div>
+
+            <form id="quickTaskForm" class="p-6 space-y-4">
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-secondary mb-1">Titel</label>
+                <input id="taskTitle" class="w-full border-zinc-200 rounded text-sm focus:ring-0 focus:border-black" type="text" required />
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-secondary mb-1">Priorität</label>
+                <select id="taskPriority" class="w-full border-zinc-200 rounded text-sm focus:ring-0 focus:border-black">
+                  <option value="medium">Mittel</option>
+                  <option value="low">Niedrig</option>
+                  <option value="high">Hoch</option>
+                  <option value="critical">Kritisch</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-secondary mb-1">Deadline</label>
+                <input id="taskDueDate" class="w-full border-zinc-200 rounded text-sm focus:ring-0 focus:border-black" type="date" />
+              </div>
+
+              <button class="w-full bg-brand-orange text-white py-2.5 rounded text-xs font-bold uppercase tracking-widest" type="submit">
+                Aufgabe anlegen
+              </button>
+            </form>
+          </section>
+
+          <section class="bg-white border border-outline-variant rounded-lg card-shadow">
+            <div class="px-6 py-4 border-b border-zinc-100">
+              <h3 class="text-xs font-bold uppercase tracking-widest">Aktivität</h3>
+            </div>
+
+            <div id="activityLog" class="p-6 space-y-6 relative before:absolute before:left-[35px] before:top-8 before:bottom-8 before:w-[1px] before:bg-zinc-100">
+              <div class="relative pl-8">
+                <div class="absolute left-0 top-1.5 w-[22px] h-[22px] bg-white border-2 border-brand-orange rounded-full flex items-center justify-center z-10">
+                  <span class="material-symbols-outlined text-[12px] text-brand-orange">edit</span>
+                </div>
+                <p class="text-xs font-semibold">Aufgabenmodul vorbereitet</p>
+                <p class="text-[11px] text-secondary mt-1">Änderungen werden später mit Nutzer und Zeitstempel protokolliert.</p>
+                <p class="text-[10px] text-zinc-400 mt-1 uppercase">jetzt</p>
+              </div>
+            </div>
+          </section>
+
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <button id="floatingCreateTask" class="fixed bottom-8 right-8 w-14 h-14 bg-brand-orange text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50 group">
+    <span class="material-symbols-outlined !text-[28px]">add</span>
+    <span class="absolute right-full mr-4 bg-zinc-900 text-white text-[11px] font-bold uppercase px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap tracking-widest">
+      Neue Aufgabe
+    </span>
+  </button>
+
+  <script>
+    async function requireAuth() {
+      try {
+        const response = await fetch("api/me.php", {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+          window.location.href = "index.html";
+          return null;
+        }
+
+        const result = await response.json();
+
+        if (!result.success || !result.user) {
+          window.location.href = "index.html";
+          return null;
+        }
+
+        return result.user;
+      } catch (error) {
+        window.location.href = "index.html";
+        return null;
+      }
+    }
+
+    function initialsFromUser(user) {
+      const name = user.name || user.email || "HT";
+      const parts = name.split(/[ .@_-]+/).filter(Boolean);
+      return parts.slice(0, 2).map(part => part[0].toUpperCase()).join("");
+    }
+
+    async function loadTasks() {
+      const scope = document.getElementById("filterScope").value;
+      const status = document.getElementById("filterStatus").value;
+      const priority = document.getElementById("filterPriority").value;
+
+      const params = new URLSearchParams({ scope });
+
+      if (status) params.set("status", status);
+      if (priority) params.set("priority", priority);
+
+      try {
+        const response = await fetch("api/tasks.php?" + params.toString(), {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+        if (!result.success) return;
+
+        document.getElementById("kpiOpen").textContent = result.kpis?.open ?? 0;
+        document.getElementById("kpiBlocked").textContent = result.kpis?.blocked ?? 0;
+        document.getElementById("kpiReview").textContent = result.kpis?.review ?? 0;
+        document.getElementById("kpiOverdue").textContent = result.kpis?.overdue ?? 0;
+
+      } catch (error) {
+        console.warn("Aufgaben konnten nicht geladen werden.");
+      }
+    }
+
+    document.getElementById("listViewButton").addEventListener("click", () => {
+      document.getElementById("kanbanBoard").classList.add("hidden");
+      document.querySelector("section.bg-white.border.border-outline-variant").classList.remove("hidden");
+    });
+
+    document.getElementById("kanbanViewButton").addEventListener("click", () => {
+      document.querySelector("section.bg-white.border.border-outline-variant").classList.add("hidden");
+      document.getElementById("kanbanBoard").classList.remove("hidden");
+    });
+
+    document.getElementById("quickTaskForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const payload = {
+        title: document.getElementById("taskTitle").value.trim(),
+        priority: document.getElementById("taskPriority").value,
+        due_date: document.getElementById("taskDueDate").value || null
+      };
+
+      if (!payload.title) return;
+
+      try {
+        const response = await fetch("api/tasks.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          document.getElementById("quickTaskForm").reset();
+          await loadTasks();
+        } else {
+          alert(result.message || "Aufgabe konnte nicht erstellt werden.");
+        }
+      } catch (error) {
+        alert("Technischer Fehler beim Erstellen der Aufgabe.");
+      }
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+      try {
+        await fetch("api/logout.php", { method: "POST" });
+      } finally {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("globalSearch").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        const query = event.target.value.trim();
+        if (query) {
+          window.location.href = "search.html?q=" + encodeURIComponent(query);
+        }
+      }
+    });
+
+    document.getElementById("createTaskTop").addEventListener("click", () => {
+      document.getElementById("taskTitle").focus();
+    });
+
+    document.getElementById("floatingCreateTask").addEventListener("click", () => {
+      document.getElementById("taskTitle").focus();
+    });
+
+    ["filterScope", "filterStatus", "filterPriority"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", loadTasks);
+    });
+
+    (async function init() {
+      const user = await requireAuth();
+      if (!user) return;
+
+      document.getElementById("userInitials").textContent = initialsFromUser(user);
+      await loadTasks();
+    })();
+  </script>
+
+</body>
+</html>
