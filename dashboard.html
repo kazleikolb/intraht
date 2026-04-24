@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html class="light" lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>IntraHT | Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#000000",
+            background: "#fdf8f8",
+            secondary: "#5d5f5f",
+            outline: "#747878",
+            "outline-variant": "#c4c7c7",
+            "surface-container": "#f1edec",
+            "surface-container-low": "#f7f3f2",
+            "modern-orange": "#f97316",
+            error: "#ba1a1a"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #fdf8f8;
+      font-family: Inter, sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .card-shadow {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+  </style>
+</head>
+
+<body class="flex min-h-screen overflow-x-hidden text-zinc-950">
+
+  <aside class="bg-white h-screen w-64 border-r fixed left-0 top-0 z-40 border-zinc-100 flex flex-col py-4 gap-2 text-[13px] font-medium">
+    <div class="px-6 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-black rounded flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-lg" style="font-variation-settings:'FILL' 1;">dashboard</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold uppercase tracking-widest">IntraHT</h1>
+          <p class="text-[10px] text-zinc-400 uppercase">Executive Hub</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex-1 px-3 space-y-1">
+      <a class="flex items-center gap-3 px-3 py-2 bg-zinc-50 text-zinc-950 border-r-2 border-orange-500" href="dashboard.html">
+        <span class="material-symbols-outlined">dashboard_customize</span>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="weeklies.html">
+        <span class="material-symbols-outlined">event_upcoming</span>
+        <span>Weeklies</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="tasks.html">
+        <span class="material-symbols-outlined">assignment_turned_in</span>
+        <span>Aufgaben</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="calendar.html">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <span>Kalender</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="search.html">
+        <span class="material-symbols-outlined">manage_search</span>
+        <span>Suche</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="notifications.html">
+        <span class="material-symbols-outlined">notifications</span>
+        <span>Mitteilungen</span>
+      </a>
+    </nav>
+
+    <div class="px-3 pt-4 border-t border-zinc-100 space-y-1">
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="archive.html">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span>Archiv</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="settings.html">
+        <span class="material-symbols-outlined">settings</span>
+        <span>Einstellungen</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="flex-1 ml-64 min-h-screen">
+
+    <header class="fixed top-0 right-0 left-64 z-50 flex items-center justify-between px-6 h-14 bg-white/80 backdrop-blur-md border-b border-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)] text-sm">
+      <div class="flex items-center gap-6">
+        <span class="text-lg font-black tracking-tighter">IntraHT</span>
+
+        <div class="hidden md:flex items-center gap-2 w-[420px]">
+          <span class="material-symbols-outlined text-zinc-400 text-[20px]">search</span>
+          <input
+            id="globalSearch"
+            class="w-full border-0 bg-zinc-50 text-sm focus:ring-0"
+            placeholder="Aufgaben, Weeklies, Kommentare, Entscheidungen suchen..."
+            type="search"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button id="quickTaskButton" class="bg-modern-orange text-white px-3 py-1.5 rounded text-xs font-bold active:scale-95 transition-transform">
+          Neue Aufgabe
+        </button>
+
+        <button id="quickTopicButton" class="bg-black text-white px-3 py-1.5 rounded text-xs font-bold active:scale-95 transition-transform">
+          Weekly-Thema
+        </button>
+
+        <div class="flex items-center gap-3 border-l pl-4 border-zinc-200">
+          <a href="notifications.html" class="relative">
+            <span class="material-symbols-outlined text-zinc-500">notifications</span>
+            <span id="notificationBadge" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-500 rounded-full"></span>
+          </a>
+
+          <button id="logoutButton" type="button">
+            <span class="material-symbols-outlined text-zinc-500">logout</span>
+          </button>
+
+          <div class="w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[11px] font-bold" id="userInitials">
+            HT
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="pt-20 px-8 pb-12">
+
+      <div class="flex justify-between items-end mb-8">
+        <div>
+          <h2 class="text-[32px] leading-10 font-bold tracking-tight">Dashboard</h2>
+          <p class="text-sm text-secondary">
+            Operative Übersicht für Aufgaben, Weeklies und offene Entscheidungen.
+          </p>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="bg-white border border-zinc-200 text-zinc-900 px-4 py-2 rounded text-xs font-bold hover:bg-zinc-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">filter_list</span>
+            Nur Beteiligte
+          </button>
+
+          <button class="bg-white border border-zinc-200 text-zinc-900 px-4 py-2 rounded text-xs font-bold hover:bg-zinc-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">visibility</span>
+            Alle anzeigen
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-6 mb-8">
+
+        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Offene Aufgaben</span>
+            <span class="material-symbols-outlined text-modern-orange">assignment</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="kpiOpenTasks" class="text-[32px] leading-10 font-bold">0</span>
+            <span class="text-xs font-bold text-zinc-500 bg-zinc-50 px-1.5 py-0.5 rounded">aktiv</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Eigene und beteiligte Aufgaben</p>
+        </div>
+
+        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Zur Prüfung</span>
+            <span class="material-symbols-outlined text-zinc-400">rule</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="kpiReviewTasks" class="text-[32px] leading-10 font-bold">0</span>
+            <span class="text-xs font-bold text-modern-orange bg-orange-50 px-1.5 py-0.5 rounded">Review</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Freigabe durch zweite Person</p>
+        </div>
+
+        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Überfällig</span>
+            <span class="material-symbols-outlined text-red-500">warning</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="kpiOverdueTasks" class="text-[32px] leading-10 font-bold">0</span>
+            <span class="text-xs font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">kritisch</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Aufgaben und offene Weekly-Punkte</p>
+        </div>
+
+        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Carry-over</span>
+            <span class="material-symbols-outlined text-zinc-400">sync_alt</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="kpiCarryOver" class="text-[32px] leading-10 font-bold">0</span>
+            <span class="text-xs font-bold text-zinc-500 bg-zinc-50 px-1.5 py-0.5 rounded">offen</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Automatisch in zukünftigen Weeklies</p>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-12 gap-8">
+
+        <div class="col-span-8 space-y-8">
+
+          <section>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-[12px] font-semibold uppercase tracking-widest flex items-center gap-2">
+                <span class="material-symbols-outlined text-modern-orange">priority_high</span>
+                Kritische Punkte
+              </h3>
+              <a href="tasks.html" class="text-[11px] font-bold text-zinc-400 hover:text-black uppercase flex items-center gap-1">
+                Aufgaben öffnen
+                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+
+            <div id="criticalList" class="grid grid-cols-2 gap-4">
+              <div class="bg-white border-l-4 border-modern-orange p-4 card-shadow flex gap-4">
+                <div class="bg-orange-50 p-2 h-fit rounded">
+                  <span class="material-symbols-outlined text-modern-orange">schedule</span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold">Keine Live-Daten geladen</h4>
+                  <p class="text-sm text-secondary mt-1">
+                    Diese Karte wird später durch `api/dashboard.php` dynamisch ersetzt.
+                  </p>
+                  <div class="flex items-center gap-3 mt-3">
+                    <button class="text-[11px] font-bold text-primary border-b border-primary uppercase">Aufgabe erstellen</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-[12px] font-semibold uppercase tracking-widest">Meine nächsten Aufgaben</h3>
+              <a href="tasks.html" class="text-[11px] font-bold text-zinc-400 hover:text-black uppercase flex items-center gap-1">
+                Alle Aufgaben
+                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+
+            <div class="bg-white border border-zinc-100 rounded-lg card-shadow divide-y divide-zinc-50" id="taskPreviewList">
+              <div class="p-4 flex items-center justify-between hover:bg-zinc-50/50">
+                <div class="flex items-start gap-3">
+                  <input type="checkbox" class="mt-1 border-zinc-300 text-black focus:ring-0" disabled />
+                  <div>
+                    <p class="text-sm font-bold">Erste Aufgabe anlegen</p>
+                    <p class="text-sm text-zinc-500 mt-1">Nach Backend-Anbindung erscheinen hier offene Aufgaben.</p>
+                  </div>
+                </div>
+                <span class="text-[11px] font-bold text-zinc-500 bg-zinc-50 px-2 py-1 rounded uppercase">Offen</span>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-[12px] font-semibold uppercase tracking-widest">Aktivitätshistorie</h3>
+              <a href="activity.html" class="text-[11px] font-bold text-zinc-400 hover:text-black uppercase flex items-center gap-1">
+                Vollständig
+                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+              </a>
+            </div>
+
+            <div class="bg-white border border-zinc-100 rounded-lg card-shadow divide-y divide-zinc-50" id="activityList">
+              <div class="p-4 flex gap-4 hover:bg-zinc-50/50">
+                <div class="w-10 h-10 rounded bg-primary flex items-center justify-center">
+                  <span class="material-symbols-outlined text-white">history</span>
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-bold">System vorbereitet <span class="font-normal text-secondary">für Aktivitätsprotokoll</span></span>
+                    <span class="text-[11px] text-zinc-400 font-medium">jetzt</span>
+                  </div>
+                  <p class="text-sm text-zinc-500 mt-1">
+                    Änderungen werden später mit Nutzer, Zeitstempel, altem und neuem Wert gespeichert.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="col-span-4 space-y-8">
+
+          <section>
+            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Nächstes Weekly</h3>
+
+            <div class="bg-zinc-950 text-white rounded-lg p-5 shadow-xl">
+              <div class="flex justify-between items-center mb-6">
+                <span id="nextWeeklyDate" class="text-[11px] font-bold text-zinc-400 uppercase">Noch nicht geplant</span>
+                <span class="material-symbols-outlined text-modern-orange">calendar_today</span>
+              </div>
+
+              <div class="space-y-4">
+                <div class="relative pl-4 border-l-2 border-modern-orange">
+                  <p class="text-[10px] text-zinc-500 font-bold uppercase">Weekly-Struktur</p>
+                  <p class="text-sm font-bold mt-1">Geschäftsführung Weekly</p>
+                  <p class="text-xs text-zinc-400 mt-1">
+                    Offene Punkte, Blocker, Entscheidungen, neue Aufgaben.
+                  </p>
+                </div>
+
+                <div class="relative pl-4 border-l-2 border-zinc-700">
+                  <p class="text-[10px] text-zinc-500 font-bold uppercase">Carry-over</p>
+                  <p class="text-sm font-bold mt-1">Automatische Übernahme</p>
+                  <p class="text-xs text-zinc-400 mt-1">
+                    Nicht erledigte Themen bleiben dauerhaft sichtbar.
+                  </p>
+                </div>
+              </div>
+
+              <a href="weeklies.html" class="block text-center w-full mt-6 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold py-2.5 rounded uppercase tracking-widest">
+                Weekly öffnen
+              </a>
+            </div>
+          </section>
+
+          <section>
+            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Status-Verteilung</h3>
+
+            <div class="bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
+                    <span>OFFEN</span>
+                    <span id="statusOpenPercent">0%</span>
+                  </div>
+                  <div class="w-full bg-zinc-50 h-1.5 rounded-full">
+                    <div id="statusOpenBar" class="bg-black h-full w-[0%] rounded-full"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
+                    <span>IN BEARBEITUNG</span>
+                    <span id="statusProgressPercent">0%</span>
+                  </div>
+                  <div class="w-full bg-zinc-50 h-1.5 rounded-full">
+                    <div id="statusProgressBar" class="bg-modern-orange h-full w-[0%] rounded-full"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
+                    <span>ZUR PRÜFUNG</span>
+                    <span id="statusReviewPercent">0%</span>
+                  </div>
+                  <div class="w-full bg-zinc-50 h-1.5 rounded-full">
+                    <div id="statusReviewBar" class="bg-zinc-300 h-full w-[0%] rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-zinc-50 border border-zinc-100 rounded-lg p-4 flex items-center gap-3">
+            <div class="w-12 h-12 rounded bg-black text-white flex items-center justify-center text-sm font-bold" id="userSnapshotInitials">
+              HT
+            </div>
+            <div>
+              <p class="text-[11px] font-bold text-zinc-400 uppercase">Aktiver Nutzer</p>
+              <p class="text-sm font-bold" id="userName">Wird geladen...</p>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-[10px] font-medium text-zinc-500">Session aktiv</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <button id="floatingCreateButton" class="fixed bottom-8 right-8 bg-modern-orange text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all group z-50">
+    <span class="material-symbols-outlined text-3xl">add</span>
+    <span class="absolute right-16 bg-zinc-900 text-white text-[10px] font-black py-1 px-3 rounded uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+      Neue Aufgabe
+    </span>
+  </button>
+
+  <script>
+    async function requireAuth() {
+      try {
+        const response = await fetch("api/me.php", {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+          window.location.href = "index.html";
+          return null;
+        }
+
+        const result = await response.json();
+
+        if (!result.success || !result.user) {
+          window.location.href = "index.html";
+          return null;
+        }
+
+        return result.user;
+      } catch (error) {
+        window.location.href = "index.html";
+        return null;
+      }
+    }
+
+    function initialsFromUser(user) {
+      const name = user.name || user.email || "HT";
+      const parts = name.split(/[ .@_-]+/).filter(Boolean);
+      return parts.slice(0, 2).map(part => part[0].toUpperCase()).join("");
+    }
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch("api/dashboard.php", {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+
+        if (!result.success || !result.data) return;
+
+        const data = result.data;
+
+        document.getElementById("kpiOpenTasks").textContent = data.open_tasks ?? 0;
+        document.getElementById("kpiReviewTasks").textContent = data.review_tasks ?? 0;
+        document.getElementById("kpiOverdueTasks").textContent = data.overdue_tasks ?? 0;
+        document.getElementById("kpiCarryOver").textContent = data.carry_over_items ?? 0;
+
+        if (data.unread_notifications > 0) {
+          document.getElementById("notificationBadge").classList.remove("hidden");
+        }
+      } catch (error) {
+        console.warn("Dashboard konnte nicht geladen werden.");
+      }
+    }
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+      try {
+        await fetch("api/logout.php", { method: "POST" });
+      } finally {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("quickTaskButton").addEventListener("click", () => {
+      window.location.href = "tasks.html?action=new";
+    });
+
+    document.getElementById("quickTopicButton").addEventListener("click", () => {
+      window.location.href = "weeklies.html?action=new-topic";
+    });
+
+    document.getElementById("floatingCreateButton").addEventListener("click", () => {
+      window.location.href = "tasks.html?action=new";
+    });
+
+    document.getElementById("globalSearch").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        const query = event.target.value.trim();
+        if (query) {
+          window.location.href = "search.html?q=" + encodeURIComponent(query);
+        }
+      }
+    });
+
+    (async function init() {
+      const user = await requireAuth();
+      if (!user) return;
+
+      const initials = initialsFromUser(user);
+
+      document.getElementById("userInitials").textContent = initials;
+      document.getElementById("userSnapshotInitials").textContent = initials;
+      document.getElementById("userName").textContent = user.name || user.email;
+
+      await loadDashboard();
+    })();
+  </script>
+
+</body>
+</html>
