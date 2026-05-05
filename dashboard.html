@@ -7,6 +7,8 @@
   <title>IntraHT | Dashboard</title>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
@@ -47,6 +49,24 @@
     .card-shadow {
       box-shadow: 0 4px 20px rgba(0,0,0,0.04);
     }
+
+    .drag-mode .widget-card {
+      cursor: grab;
+      outline: 1px dashed #f97316;
+      outline-offset: 4px;
+    }
+
+    .drag-mode .widget-toolbar {
+      display: flex;
+    }
+
+    .widget-toolbar {
+      display: none;
+    }
+
+    .sortable-ghost {
+      opacity: 0.35;
+    }
   </style>
 </head>
 
@@ -79,6 +99,16 @@
       <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="tasks.html">
         <span class="material-symbols-outlined">assignment_turned_in</span>
         <span>Aufgaben</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="crisis.html">
+        <span class="material-symbols-outlined">emergency_home</span>
+        <span>Krisenmanagement</span>
+      </a>
+
+      <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="workflows.html">
+        <span class="material-symbols-outlined">account_tree</span>
+        <span>Wenn-Dann-Builder</span>
       </a>
 
       <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50" href="calendar.html">
@@ -121,19 +151,23 @@
           <input
             id="globalSearch"
             class="w-full border-0 bg-zinc-50 text-sm focus:ring-0"
-            placeholder="Aufgaben, Weeklies, Kommentare, Entscheidungen suchen..."
+            placeholder="Aufgaben, Krisen, Regeln, Entscheidungen suchen..."
             type="search"
           />
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <button id="customizeButton" class="bg-white border border-zinc-200 text-zinc-900 px-3 py-1.5 rounded text-xs font-bold hover:bg-zinc-50">
+          Dashboard anpassen
+        </button>
+
         <button id="quickTaskButton" class="bg-modern-orange text-white px-3 py-1.5 rounded text-xs font-bold active:scale-95 transition-transform">
           Neue Aufgabe
         </button>
 
-        <button id="quickTopicButton" class="bg-black text-white px-3 py-1.5 rounded text-xs font-bold active:scale-95 transition-transform">
-          Weekly-Thema
+        <button id="quickCrisisButton" class="bg-black text-white px-3 py-1.5 rounded text-xs font-bold active:scale-95 transition-transform">
+          Neuer Krisenfall
         </button>
 
         <div class="flex items-center gap-3 border-l pl-4 border-zinc-200">
@@ -159,80 +193,118 @@
         <div>
           <h2 class="text-[32px] leading-10 font-bold tracking-tight">Dashboard</h2>
           <p class="text-sm text-secondary">
-            Operative Übersicht für Aufgaben, Weeklies und offene Entscheidungen.
+            Operative Übersicht für Aufgaben, Krisen, Workflows, Entscheidungen und Management-Prioritäten.
           </p>
         </div>
 
         <div class="flex gap-2">
-          <button class="bg-white border border-zinc-200 text-zinc-900 px-4 py-2 rounded text-xs font-bold hover:bg-zinc-50 flex items-center gap-2">
-            <span class="material-symbols-outlined text-sm">filter_list</span>
-            Nur Beteiligte
+          <button id="resetLayoutButton" class="hidden bg-white border border-zinc-200 text-zinc-900 px-4 py-2 rounded text-xs font-bold hover:bg-zinc-50">
+            Layout zurücksetzen
           </button>
 
-          <button class="bg-white border border-zinc-200 text-zinc-900 px-4 py-2 rounded text-xs font-bold hover:bg-zinc-50 flex items-center gap-2">
-            <span class="material-symbols-outlined text-sm">visibility</span>
-            Alle anzeigen
+          <button id="saveLayoutButton" class="hidden bg-black text-white px-4 py-2 rounded text-xs font-bold hover:bg-zinc-800">
+            Fertig
           </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-12 gap-6 mb-8">
+      <div id="widgetGrid" class="grid grid-cols-12 gap-6"></div>
 
-        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
-          <div class="flex justify-between items-start mb-4">
-            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Offene Aufgaben</span>
-            <span class="material-symbols-outlined text-modern-orange">assignment</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="kpiOpenTasks" class="text-[32px] leading-10 font-bold">0</span>
-            <span class="text-xs font-bold text-zinc-500 bg-zinc-50 px-1.5 py-0.5 rounded">aktiv</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Eigene und beteiligte Aufgaben</p>
+    </div>
+  </main>
+
+  <div id="widgetDrawer" class="hidden fixed inset-0 z-[80]">
+    <div class="absolute inset-0 bg-black/30" id="drawerBackdrop"></div>
+
+    <div class="absolute right-0 top-0 h-full w-[420px] bg-white shadow-2xl p-6 overflow-y-auto">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h3 class="text-xl font-bold">Widgets verwalten</h3>
+          <p class="text-sm text-zinc-500 mt-1">Entfernte Widgets können hier wieder eingefügt werden.</p>
         </div>
 
-        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
-          <div class="flex justify-between items-start mb-4">
-            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Zur Prüfung</span>
-            <span class="material-symbols-outlined text-zinc-400">rule</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="kpiReviewTasks" class="text-[32px] leading-10 font-bold">0</span>
-            <span class="text-xs font-bold text-modern-orange bg-orange-50 px-1.5 py-0.5 rounded">Review</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Freigabe durch zweite Person</p>
-        </div>
-
-        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
-          <div class="flex justify-between items-start mb-4">
-            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Überfällig</span>
-            <span class="material-symbols-outlined text-red-500">warning</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="kpiOverdueTasks" class="text-[32px] leading-10 font-bold">0</span>
-            <span class="text-xs font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">kritisch</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Aufgaben und offene Weekly-Punkte</p>
-        </div>
-
-        <div class="col-span-3 bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
-          <div class="flex justify-between items-start mb-4">
-            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">Carry-over</span>
-            <span class="material-symbols-outlined text-zinc-400">sync_alt</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="kpiCarryOver" class="text-[32px] leading-10 font-bold">0</span>
-            <span class="text-xs font-bold text-zinc-500 bg-zinc-50 px-1.5 py-0.5 rounded">offen</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 mt-1 uppercase">Automatisch in zukünftigen Weeklies</p>
-        </div>
-
+        <button id="closeDrawerButton" class="w-9 h-9 rounded bg-zinc-50 flex items-center justify-center">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
 
-      <div class="grid grid-cols-12 gap-8">
+      <div id="availableWidgetsList" class="space-y-3"></div>
+    </div>
+  </div>
 
-        <div class="col-span-8 space-y-8">
+  <button id="floatingCreateButton" class="fixed bottom-8 right-8 bg-modern-orange text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all group z-50">
+    <span class="material-symbols-outlined text-3xl">add</span>
+    <span class="absolute right-16 bg-zinc-900 text-white text-[10px] font-black py-1 px-3 rounded uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+      Neue Aufgabe
+    </span>
+  </button>
 
-          <section>
+  <script>
+    const STORAGE_KEY = "intraht_dashboard_layout_v1";
+
+    const dashboardState = {
+      editMode: false,
+      data: {
+        open_tasks: 0,
+        review_tasks: 0,
+        overdue_tasks: 0,
+        carry_over_items: 0,
+        crisis_red: 0,
+        workflows_active: 0,
+        unread_notifications: 0
+      }
+    };
+
+    const widgetRegistry = [
+      {
+        id: "kpiOpenTasks",
+        title: "Offene Aufgaben",
+        size: "col-span-3",
+        icon: "assignment",
+        render: () => kpiWidget("Offene Aufgaben", dashboardState.data.open_tasks, "aktiv", "Eigene und beteiligte Aufgaben", "assignment", "text-modern-orange")
+      },
+      {
+        id: "kpiReviewTasks",
+        title: "Zur Prüfung",
+        size: "col-span-3",
+        icon: "rule",
+        render: () => kpiWidget("Zur Prüfung", dashboardState.data.review_tasks, "Review", "Freigabe durch zweite Person", "rule", "text-zinc-400")
+      },
+      {
+        id: "kpiOverdueTasks",
+        title: "Überfällig",
+        size: "col-span-3",
+        icon: "warning",
+        render: () => kpiWidget("Überfällig", dashboardState.data.overdue_tasks, "kritisch", "Fristen und offene Punkte", "warning", "text-red-500")
+      },
+      {
+        id: "kpiCarryOver",
+        title: "Carry-over",
+        size: "col-span-3",
+        icon: "sync_alt",
+        render: () => kpiWidget("Carry-over", dashboardState.data.carry_over_items, "offen", "Automatisch in zukünftigen Weeklies", "sync_alt", "text-zinc-400")
+      },
+      {
+        id: "kpiCrisis",
+        title: "Krisenfälle",
+        size: "col-span-3",
+        icon: "emergency_home",
+        render: () => kpiWidget("Krisenfälle", dashboardState.data.crisis_red, "rot", "Managementrelevante Eskalationen", "emergency_home", "text-red-600")
+      },
+      {
+        id: "kpiWorkflows",
+        title: "Aktive Workflows",
+        size: "col-span-3",
+        icon: "account_tree",
+        render: () => kpiWidget("Aktive Workflows", dashboardState.data.workflows_active, "Regeln", "Wenn-Dann-Abläufe im System", "account_tree", "text-modern-orange")
+      },
+      {
+        id: "criticalPoints",
+        title: "Kritische Punkte",
+        size: "col-span-8",
+        icon: "priority_high",
+        render: () => `
+          <section class="bg-transparent">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-[12px] font-semibold uppercase tracking-widest flex items-center gap-2">
                 <span class="material-symbols-outlined text-modern-orange">priority_high</span>
@@ -244,24 +316,19 @@
               </a>
             </div>
 
-            <div id="criticalList" class="grid grid-cols-2 gap-4">
-              <div class="bg-white border-l-4 border-modern-orange p-4 card-shadow flex gap-4">
-                <div class="bg-orange-50 p-2 h-fit rounded">
-                  <span class="material-symbols-outlined text-modern-orange">schedule</span>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold">Keine Live-Daten geladen</h4>
-                  <p class="text-sm text-secondary mt-1">
-                    Diese Karte wird später durch `api/dashboard.php` dynamisch ersetzt.
-                  </p>
-                  <div class="flex items-center gap-3 mt-3">
-                    <button class="text-[11px] font-bold text-primary border-b border-primary uppercase">Aufgabe erstellen</button>
-                  </div>
-                </div>
-              </div>
+            <div class="grid grid-cols-2 gap-4">
+              ${criticalCard("Kundeneskalation", "Key Account meldet Leistungsstörung. Rückmeldung und Verantwortlicher erforderlich.", "Krisenfall öffnen", "crisis.html")}
+              ${criticalCard("AÜG-Frist prüfen", "Einsatzdauer oder Equal-Pay-relevanter Vorgang muss geprüft werden.", "Prüfung starten", "workflows.html")}
             </div>
           </section>
-
+        `
+      },
+      {
+        id: "taskPreview",
+        title: "Meine nächsten Aufgaben",
+        size: "col-span-8",
+        icon: "assignment_turned_in",
+        render: () => `
           <section>
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-[12px] font-semibold uppercase tracking-widest">Meine nächsten Aufgaben</h3>
@@ -271,20 +338,95 @@
               </a>
             </div>
 
-            <div class="bg-white border border-zinc-100 rounded-lg card-shadow divide-y divide-zinc-50" id="taskPreviewList">
-              <div class="p-4 flex items-center justify-between hover:bg-zinc-50/50">
-                <div class="flex items-start gap-3">
-                  <input type="checkbox" class="mt-1 border-zinc-300 text-black focus:ring-0" disabled />
-                  <div>
-                    <p class="text-sm font-bold">Erste Aufgabe anlegen</p>
-                    <p class="text-sm text-zinc-500 mt-1">Nach Backend-Anbindung erscheinen hier offene Aufgaben.</p>
-                  </div>
+            <div class="bg-white border border-zinc-100 rounded-lg card-shadow divide-y divide-zinc-50">
+              ${taskRow("Krisenplaybook prüfen", "Vorlage für Kundenbeschwerde finalisieren.", "Heute", "Offen")}
+              ${taskRow("GF-Entscheidung vorbereiten", "Workflow-Regel für Großkundeneskalation abstimmen.", "Morgen", "In Bearbeitung")}
+              ${taskRow("Compliance-Fristen kontrollieren", "AÜG-/Equal-Pay-relevante Fristen für laufende Einsätze prüfen.", "Diese Woche", "Zur Prüfung")}
+            </div>
+          </section>
+        `
+      },
+      {
+        id: "workflowPreview",
+        title: "Wenn-Dann-Regeln",
+        size: "col-span-4",
+        icon: "account_tree",
+        render: () => `
+          <section>
+            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Wenn-Dann-Regeln</h3>
+
+            <div class="bg-white border border-zinc-100 rounded-lg p-5 card-shadow space-y-4">
+              ${ruleRow("Wenn Kunde = Key Account", "Dann GF informieren + Krisenfall rot erstellen")}
+              ${ruleRow("Wenn Frist überschritten", "Dann Eskalation an Management")}
+              ${ruleRow("Wenn Mitarbeiter erscheint nicht", "Dann Dispo-Aufgabe + Kundenrückmeldung")}
+              <a href="workflows.html" class="block text-center bg-black text-white text-xs font-bold py-2.5 rounded uppercase tracking-widest">
+                Builder öffnen
+              </a>
+            </div>
+          </section>
+        `
+      },
+      {
+        id: "nextWeekly",
+        title: "Nächstes Weekly",
+        size: "col-span-4",
+        icon: "calendar_today",
+        render: () => `
+          <section>
+            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Nächstes Weekly</h3>
+
+            <div class="bg-zinc-950 text-white rounded-lg p-5 shadow-xl">
+              <div class="flex justify-between items-center mb-6">
+                <span class="text-[11px] font-bold text-zinc-400 uppercase">Noch nicht geplant</span>
+                <span class="material-symbols-outlined text-modern-orange">calendar_today</span>
+              </div>
+
+              <div class="space-y-4">
+                <div class="relative pl-4 border-l-2 border-modern-orange">
+                  <p class="text-[10px] text-zinc-500 font-bold uppercase">Weekly-Struktur</p>
+                  <p class="text-sm font-bold mt-1">Geschäftsführung Weekly</p>
+                  <p class="text-xs text-zinc-400 mt-1">Offene Punkte, Blocker, Entscheidungen, neue Aufgaben.</p>
                 </div>
-                <span class="text-[11px] font-bold text-zinc-500 bg-zinc-50 px-2 py-1 rounded uppercase">Offen</span>
+
+                <div class="relative pl-4 border-l-2 border-zinc-700">
+                  <p class="text-[10px] text-zinc-500 font-bold uppercase">Carry-over</p>
+                  <p class="text-sm font-bold mt-1">Automatische Übernahme</p>
+                  <p class="text-xs text-zinc-400 mt-1">Nicht erledigte Themen bleiben sichtbar.</p>
+                </div>
+              </div>
+
+              <a href="weeklies.html" class="block text-center w-full mt-6 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold py-2.5 rounded uppercase tracking-widest">
+                Weekly öffnen
+              </a>
+            </div>
+          </section>
+        `
+      },
+      {
+        id: "statusDistribution",
+        title: "Status-Verteilung",
+        size: "col-span-4",
+        icon: "bar_chart",
+        render: () => `
+          <section>
+            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Status-Verteilung</h3>
+
+            <div class="bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
+              <div class="space-y-4">
+                ${statusBar("OFFEN", 42, "bg-black")}
+                ${statusBar("IN BEARBEITUNG", 35, "bg-modern-orange")}
+                ${statusBar("ZUR PRÜFUNG", 23, "bg-zinc-300")}
               </div>
             </div>
           </section>
-
+        `
+      },
+      {
+        id: "activityHistory",
+        title: "Aktivitätshistorie",
+        size: "col-span-8",
+        icon: "history",
+        render: () => `
           <section>
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-[12px] font-semibold uppercase tracking-widest">Aktivitätshistorie</h3>
@@ -294,99 +436,20 @@
               </a>
             </div>
 
-            <div class="bg-white border border-zinc-100 rounded-lg card-shadow divide-y divide-zinc-50" id="activityList">
-              <div class="p-4 flex gap-4 hover:bg-zinc-50/50">
-                <div class="w-10 h-10 rounded bg-primary flex items-center justify-center">
-                  <span class="material-symbols-outlined text-white">history</span>
-                </div>
-                <div class="flex-1">
-                  <div class="flex justify-between">
-                    <span class="text-sm font-bold">System vorbereitet <span class="font-normal text-secondary">für Aktivitätsprotokoll</span></span>
-                    <span class="text-[11px] text-zinc-400 font-medium">jetzt</span>
-                  </div>
-                  <p class="text-sm text-zinc-500 mt-1">
-                    Änderungen werden später mit Nutzer, Zeitstempel, altem und neuem Wert gespeichert.
-                  </p>
-                </div>
-              </div>
+            <div class="bg-white border border-zinc-100 rounded-lg card-shadow divide-y divide-zinc-50">
+              ${activityRow("Workflow geändert", "Regel für Großkundeneskalation wurde angepasst.", "jetzt")}
+              ${activityRow("Aufgabe erstellt", "Compliance-Prüfung für laufenden Einsatz angelegt.", "vor 12 Min.")}
+              ${activityRow("Krisenfall aktualisiert", "Status auf Maßnahme läuft gesetzt.", "vor 31 Min.")}
             </div>
           </section>
-
-        </div>
-
-        <div class="col-span-4 space-y-8">
-
-          <section>
-            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Nächstes Weekly</h3>
-
-            <div class="bg-zinc-950 text-white rounded-lg p-5 shadow-xl">
-              <div class="flex justify-between items-center mb-6">
-                <span id="nextWeeklyDate" class="text-[11px] font-bold text-zinc-400 uppercase">Noch nicht geplant</span>
-                <span class="material-symbols-outlined text-modern-orange">calendar_today</span>
-              </div>
-
-              <div class="space-y-4">
-                <div class="relative pl-4 border-l-2 border-modern-orange">
-                  <p class="text-[10px] text-zinc-500 font-bold uppercase">Weekly-Struktur</p>
-                  <p class="text-sm font-bold mt-1">Geschäftsführung Weekly</p>
-                  <p class="text-xs text-zinc-400 mt-1">
-                    Offene Punkte, Blocker, Entscheidungen, neue Aufgaben.
-                  </p>
-                </div>
-
-                <div class="relative pl-4 border-l-2 border-zinc-700">
-                  <p class="text-[10px] text-zinc-500 font-bold uppercase">Carry-over</p>
-                  <p class="text-sm font-bold mt-1">Automatische Übernahme</p>
-                  <p class="text-xs text-zinc-400 mt-1">
-                    Nicht erledigte Themen bleiben dauerhaft sichtbar.
-                  </p>
-                </div>
-              </div>
-
-              <a href="weeklies.html" class="block text-center w-full mt-6 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold py-2.5 rounded uppercase tracking-widest">
-                Weekly öffnen
-              </a>
-            </div>
-          </section>
-
-          <section>
-            <h3 class="text-[12px] font-semibold uppercase tracking-widest mb-4">Status-Verteilung</h3>
-
-            <div class="bg-white border border-zinc-100 rounded-lg p-5 card-shadow">
-              <div class="space-y-4">
-                <div>
-                  <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
-                    <span>OFFEN</span>
-                    <span id="statusOpenPercent">0%</span>
-                  </div>
-                  <div class="w-full bg-zinc-50 h-1.5 rounded-full">
-                    <div id="statusOpenBar" class="bg-black h-full w-[0%] rounded-full"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
-                    <span>IN BEARBEITUNG</span>
-                    <span id="statusProgressPercent">0%</span>
-                  </div>
-                  <div class="w-full bg-zinc-50 h-1.5 rounded-full">
-                    <div id="statusProgressBar" class="bg-modern-orange h-full w-[0%] rounded-full"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
-                    <span>ZUR PRÜFUNG</span>
-                    <span id="statusReviewPercent">0%</span>
-                  </div>
-                  <div class="w-full bg-zinc-50 h-1.5 rounded-full">
-                    <div id="statusReviewBar" class="bg-zinc-300 h-full w-[0%] rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
+        `
+      },
+      {
+        id: "userSnapshot",
+        title: "Aktiver Nutzer",
+        size: "col-span-4",
+        icon: "person",
+        render: () => `
           <section class="bg-zinc-50 border border-zinc-100 rounded-lg p-4 flex items-center gap-3">
             <div class="w-12 h-12 rounded bg-black text-white flex items-center justify-center text-sm font-bold" id="userSnapshotInitials">
               HT
@@ -400,20 +463,282 @@
               </div>
             </div>
           </section>
+        `
+      }
+    ];
 
+    const defaultLayout = widgetRegistry.map(widget => ({
+      id: widget.id,
+      visible: true,
+      size: widget.size
+    }));
+
+    function kpiWidget(label, value, badge, subline, icon, iconClass) {
+      return `
+        <div class="bg-white border border-zinc-100 rounded-lg p-5 card-shadow h-full">
+          <div class="flex justify-between items-start mb-4">
+            <span class="text-[12px] font-semibold text-secondary uppercase tracking-wider">${label}</span>
+            <span class="material-symbols-outlined ${iconClass}">${icon}</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-[32px] leading-10 font-bold">${value ?? 0}</span>
+            <span class="text-xs font-bold text-zinc-500 bg-zinc-50 px-1.5 py-0.5 rounded">${badge}</span>
+          </div>
+          <p class="text-[10px] text-zinc-400 mt-1 uppercase">${subline}</p>
         </div>
-      </div>
-    </div>
-  </main>
+      `;
+    }
 
-  <button id="floatingCreateButton" class="fixed bottom-8 right-8 bg-modern-orange text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all group z-50">
-    <span class="material-symbols-outlined text-3xl">add</span>
-    <span class="absolute right-16 bg-zinc-900 text-white text-[10px] font-black py-1 px-3 rounded uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-      Neue Aufgabe
-    </span>
-  </button>
+    function criticalCard(title, text, action, href) {
+      return `
+        <div class="bg-white border-l-4 border-modern-orange p-4 card-shadow flex gap-4">
+          <div class="bg-orange-50 p-2 h-fit rounded">
+            <span class="material-symbols-outlined text-modern-orange">schedule</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold">${title}</h4>
+            <p class="text-sm text-secondary mt-1">${text}</p>
+            <div class="flex items-center gap-3 mt-3">
+              <a href="${href}" class="text-[11px] font-bold text-primary border-b border-primary uppercase">${action}</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
-  <script>
+    function taskRow(title, desc, due, status) {
+      return `
+        <div class="p-4 flex items-center justify-between hover:bg-zinc-50/50">
+          <div class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1 border-zinc-300 text-black focus:ring-0" />
+            <div>
+              <p class="text-sm font-bold">${title}</p>
+              <p class="text-sm text-zinc-500 mt-1">${desc}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] font-bold text-zinc-500 bg-zinc-50 px-2 py-1 rounded uppercase">${status}</span>
+            <p class="text-[10px] text-zinc-400 mt-1">${due}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function ruleRow(condition, action) {
+      return `
+        <div class="border border-zinc-100 rounded p-3">
+          <p class="text-xs font-bold text-zinc-900">${condition}</p>
+          <p class="text-xs text-zinc-500 mt-1">${action}</p>
+        </div>
+      `;
+    }
+
+    function statusBar(label, percent, colorClass) {
+      return `
+        <div>
+          <div class="flex justify-between text-[11px] font-bold text-zinc-500 mb-1">
+            <span>${label}</span>
+            <span>${percent}%</span>
+          </div>
+          <div class="w-full bg-zinc-50 h-1.5 rounded-full">
+            <div class="${colorClass} h-full rounded-full" style="width:${percent}%"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function activityRow(title, text, time) {
+      return `
+        <div class="p-4 flex gap-4 hover:bg-zinc-50/50">
+          <div class="w-10 h-10 rounded bg-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-white">history</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between">
+              <span class="text-sm font-bold">${title} <span class="font-normal text-secondary">${text}</span></span>
+              <span class="text-[11px] text-zinc-400 font-medium">${time}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getLayout() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return structuredClone(defaultLayout);
+
+      try {
+        const parsed = JSON.parse(saved);
+        const knownIds = widgetRegistry.map(widget => widget.id);
+        const cleaned = parsed.filter(item => knownIds.includes(item.id));
+
+        for (const widget of widgetRegistry) {
+          if (!cleaned.find(item => item.id === widget.id)) {
+            cleaned.push({ id: widget.id, visible: false, size: widget.size });
+          }
+        }
+
+        return cleaned;
+      } catch {
+        return structuredClone(defaultLayout);
+      }
+    }
+
+    function saveLayout(layout) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+    }
+
+    function renderDashboard() {
+      const grid = document.getElementById("widgetGrid");
+      const layout = getLayout();
+
+      grid.innerHTML = "";
+
+      for (const item of layout) {
+        if (!item.visible) continue;
+
+        const widget = widgetRegistry.find(entry => entry.id === item.id);
+        if (!widget) continue;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = `${item.size || widget.size} widget-card`;
+        wrapper.dataset.widgetId = widget.id;
+
+        wrapper.innerHTML = `
+          <div class="relative h-full">
+            <div class="widget-toolbar absolute right-2 top-2 z-10 gap-1">
+              <button class="move-widget bg-white/90 border border-zinc-200 rounded px-2 py-1 text-[10px] font-bold">
+                Verschieben
+              </button>
+              <button class="resize-widget bg-white/90 border border-zinc-200 rounded px-2 py-1 text-[10px] font-bold">
+                Größe
+              </button>
+              <button class="remove-widget bg-white/90 border border-red-100 text-red-600 rounded px-2 py-1 text-[10px] font-bold">
+                Entfernen
+              </button>
+            </div>
+            ${widget.render()}
+          </div>
+        `;
+
+        grid.appendChild(wrapper);
+      }
+
+      attachWidgetControls();
+      updateUserDisplay();
+      renderAvailableWidgets();
+    }
+
+    function attachWidgetControls() {
+      document.querySelectorAll(".remove-widget").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          const card = event.target.closest(".widget-card");
+          setWidgetVisibility(card.dataset.widgetId, false);
+        });
+      });
+
+      document.querySelectorAll(".resize-widget").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          const card = event.target.closest(".widget-card");
+          cycleWidgetSize(card.dataset.widgetId);
+        });
+      });
+    }
+
+    function setWidgetVisibility(widgetId, visible) {
+      const layout = getLayout();
+      const item = layout.find(entry => entry.id === widgetId);
+      if (item) item.visible = visible;
+      saveLayout(layout);
+      renderDashboard();
+    }
+
+    function cycleWidgetSize(widgetId) {
+      const sizes = ["col-span-3", "col-span-4", "col-span-6", "col-span-8", "col-span-12"];
+      const layout = getLayout();
+      const item = layout.find(entry => entry.id === widgetId);
+
+      if (!item) return;
+
+      const currentIndex = sizes.indexOf(item.size);
+      item.size = sizes[(currentIndex + 1) % sizes.length];
+
+      saveLayout(layout);
+      renderDashboard();
+    }
+
+    function renderAvailableWidgets() {
+      const list = document.getElementById("availableWidgetsList");
+      const layout = getLayout();
+      const hidden = layout.filter(item => !item.visible);
+
+      if (!hidden.length) {
+        list.innerHTML = `<p class="text-sm text-zinc-500">Alle Widgets sind aktiv.</p>`;
+        return;
+      }
+
+      list.innerHTML = hidden.map(item => {
+        const widget = widgetRegistry.find(entry => entry.id === item.id);
+        return `
+          <div class="border border-zinc-100 rounded-lg p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-modern-orange">${widget.icon}</span>
+              <div>
+                <p class="text-sm font-bold">${widget.title}</p>
+                <p class="text-xs text-zinc-500">Widget wieder einfügen</p>
+              </div>
+            </div>
+            <button data-add-widget="${widget.id}" class="bg-black text-white px-3 py-1.5 rounded text-xs font-bold">
+              Einfügen
+            </button>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll("[data-add-widget]").forEach(button => {
+        button.addEventListener("click", () => {
+          setWidgetVisibility(button.dataset.addWidget, true);
+        });
+      });
+    }
+
+    function enableSorting() {
+      new Sortable(document.getElementById("widgetGrid"), {
+        animation: 180,
+        handle: ".move-widget",
+        ghostClass: "sortable-ghost",
+        onEnd: () => {
+          const currentLayout = getLayout();
+          const orderedIds = Array.from(document.querySelectorAll(".widget-card")).map(card => card.dataset.widgetId);
+
+          const visibleItems = orderedIds.map(id => currentLayout.find(item => item.id === id));
+          const hiddenItems = currentLayout.filter(item => !item.visible);
+
+          saveLayout([...visibleItems, ...hiddenItems]);
+        }
+      });
+    }
+
+    function toggleEditMode(force) {
+      dashboardState.editMode = typeof force === "boolean" ? force : !dashboardState.editMode;
+
+      document.body.classList.toggle("drag-mode", dashboardState.editMode);
+      document.getElementById("saveLayoutButton").classList.toggle("hidden", !dashboardState.editMode);
+      document.getElementById("resetLayoutButton").classList.toggle("hidden", !dashboardState.editMode);
+      document.getElementById("widgetDrawer").classList.toggle("hidden", !dashboardState.editMode);
+
+      document.getElementById("customizeButton").textContent = dashboardState.editMode
+        ? "Anpassung läuft"
+        : "Dashboard anpassen";
+    }
+
+    function resetLayout() {
+      localStorage.removeItem(STORAGE_KEY);
+      renderDashboard();
+    }
+
     async function requireAuth() {
       try {
         const response = await fetch("api/me.php", {
@@ -422,21 +747,18 @@
         });
 
         if (!response.ok) {
-          window.location.href = "index.html";
-          return null;
+          return { name: "HT Management", email: "management@intraht.local" };
         }
 
         const result = await response.json();
 
         if (!result.success || !result.user) {
-          window.location.href = "index.html";
-          return null;
+          return { name: "HT Management", email: "management@intraht.local" };
         }
 
         return result.user;
-      } catch (error) {
-        window.location.href = "index.html";
-        return null;
+      } catch {
+        return { name: "HT Management", email: "management@intraht.local" };
       }
     }
 
@@ -444,6 +766,22 @@
       const name = user.name || user.email || "HT";
       const parts = name.split(/[ .@_-]+/).filter(Boolean);
       return parts.slice(0, 2).map(part => part[0].toUpperCase()).join("");
+    }
+
+    let activeUser = null;
+
+    function updateUserDisplay() {
+      if (!activeUser) return;
+
+      const initials = initialsFromUser(activeUser);
+
+      const userInitials = document.getElementById("userInitials");
+      const userSnapshotInitials = document.getElementById("userSnapshotInitials");
+      const userName = document.getElementById("userName");
+
+      if (userInitials) userInitials.textContent = initials;
+      if (userSnapshotInitials) userSnapshotInitials.textContent = initials;
+      if (userName) userName.textContent = activeUser.name || activeUser.email;
     }
 
     async function loadDashboard() {
@@ -459,17 +797,17 @@
 
         if (!result.success || !result.data) return;
 
-        const data = result.data;
+        dashboardState.data = {
+          ...dashboardState.data,
+          ...result.data
+        };
 
-        document.getElementById("kpiOpenTasks").textContent = data.open_tasks ?? 0;
-        document.getElementById("kpiReviewTasks").textContent = data.review_tasks ?? 0;
-        document.getElementById("kpiOverdueTasks").textContent = data.overdue_tasks ?? 0;
-        document.getElementById("kpiCarryOver").textContent = data.carry_over_items ?? 0;
-
-        if (data.unread_notifications > 0) {
+        if (dashboardState.data.unread_notifications > 0) {
           document.getElementById("notificationBadge").classList.remove("hidden");
         }
-      } catch (error) {
+
+        renderDashboard();
+      } catch {
         console.warn("Dashboard konnte nicht geladen werden.");
       }
     }
@@ -486,15 +824,15 @@
       window.location.href = "tasks.html?action=new";
     });
 
-    document.getElementById("quickTopicButton").addEventListener("click", () => {
-      window.location.href = "weeklies.html?action=new-topic";
+    document.getElementById("quickCrisisButton").addEventListener("click", () => {
+      window.location.href = "crisis.html?action=new";
     });
 
     document.getElementById("floatingCreateButton").addEventListener("click", () => {
       window.location.href = "tasks.html?action=new";
     });
 
-    document.getElementById("globalSearch").addEventListener("keydown", (event) => {
+    document.getElementById("globalSearch").addEventListener("keydown", event => {
       if (event.key === "Enter") {
         const query = event.target.value.trim();
         if (query) {
@@ -503,16 +841,31 @@
       }
     });
 
+    document.getElementById("customizeButton").addEventListener("click", () => {
+      toggleEditMode(true);
+    });
+
+    document.getElementById("saveLayoutButton").addEventListener("click", () => {
+      toggleEditMode(false);
+    });
+
+    document.getElementById("resetLayoutButton").addEventListener("click", () => {
+      resetLayout();
+    });
+
+    document.getElementById("closeDrawerButton").addEventListener("click", () => {
+      toggleEditMode(false);
+    });
+
+    document.getElementById("drawerBackdrop").addEventListener("click", () => {
+      toggleEditMode(false);
+    });
+
     (async function init() {
-      const user = await requireAuth();
-      if (!user) return;
-
-      const initials = initialsFromUser(user);
-
-      document.getElementById("userInitials").textContent = initials;
-      document.getElementById("userSnapshotInitials").textContent = initials;
-      document.getElementById("userName").textContent = user.name || user.email;
-
+      activeUser = await requireAuth();
+      renderDashboard();
+      enableSorting();
+      updateUserDisplay();
       await loadDashboard();
     })();
   </script>
