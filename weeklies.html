@@ -1,229 +1,914 @@
 <!DOCTYPE html>
 <html class="light" lang="de">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IntraHT | Weekly</title>
 
-<title>IntraHT | Weekly</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        primary: "#000000",
-        background: "#fdf8f8",
-        secondary: "#5d5f5f",
-        "brand-orange": "#ff5c00"
-      },
-      fontFamily: {
-        sans: ["Inter"]
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#000000",
+            background: "#fdf8f8",
+            secondary: "#5d5f5f",
+            outline: "#747878",
+            "outline-variant": "#c4c7c7",
+            "brand-orange": "#ff5c00",
+            error: "#ba1a1a"
+          },
+          fontFamily: { sans: ["Inter", "sans-serif"] }
+        }
       }
-    }
-  }
-}
-</script>
+    };
+  </script>
 
-<style>
-body { background:#fdf8f8; font-family:Inter,sans-serif; }
-.material-symbols-outlined { font-size:18px; }
-</style>
+  <style>
+    body { background-color: #fdf8f8; font-family: Inter, sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+
+    @keyframes rowIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+    .row-anim { animation: rowIn 0.15s ease both; }
+
+    .weekly-task-done label { text-decoration: line-through; opacity: 0.45; }
+
+    /* Tab pill */
+    .week-tab { transition: all 0.15s; }
+    .week-tab.active { background: #000; color: #fff; }
+
+    /* Carry-over badge */
+    .carry-badge { background:#ff5c00; color:#fff; font-size:10px; font-weight:700; padding: 1px 6px; border-radius:99px; }
+  </style>
 </head>
 
-<body>
+<body class="text-zinc-950">
 
-<!-- Sidebar -->
-<aside class="bg-white h-screen w-64 border-r fixed left-0 top-0 flex flex-col p-4">
-  <div class="mb-6 font-bold text-xl">IntraHT</div>
+<!-- ───── SIDEBAR ───── -->
+<aside class="bg-white h-screen w-64 border-r fixed left-0 top-0 z-40 border-zinc-100 flex flex-col py-4 gap-2">
+  <div class="px-6 mb-8">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-black rounded flex items-center justify-center">
+        <span class="material-symbols-outlined text-white text-lg" style="font-variation-settings:'FILL' 1;">dashboard</span>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold uppercase tracking-widest leading-none">IntraHT</h1>
+        <p class="text-[10px] text-zinc-400 uppercase">Executive Hub</p>
+      </div>
+    </div>
+  </div>
 
-  <nav class="space-y-2 text-sm">
-    <a href="dashboard.html" class="block p-2 hover:bg-zinc-100">Dashboard</a>
-    <a href="weeklies.html" class="block p-2 bg-zinc-100 font-semibold border-l-4 border-brand-orange">Weeklies</a>
-    <a href="tasks.html" class="block p-2 hover:bg-zinc-100">Aufgaben</a>
-    <a href="calendar.html" class="block p-2 hover:bg-zinc-100">Kalender</a>
+  <nav class="flex-1 px-3 space-y-1 text-[13px] font-medium">
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="dashboard.html">
+      <span class="material-symbols-outlined text-[18px]">dashboard_customize</span> Dashboard
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 bg-zinc-50 text-zinc-950 border-r-2 border-brand-orange rounded-l" href="weeklies.html">
+      <span class="material-symbols-outlined text-[18px]">event_upcoming</span> Weeklies
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="tasks.html">
+      <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span> Aufgaben
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="crisis.html">
+      <span class="material-symbols-outlined text-[18px]">emergency_home</span> Krisenmanagement
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="workflows.html">
+      <span class="material-symbols-outlined text-[18px]">account_tree</span> Wenn-Dann-Builder
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="calendar.html">
+      <span class="material-symbols-outlined text-[18px]">calendar_month</span> Kalender
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="notifications.html">
+      <span class="material-symbols-outlined text-[18px]">notifications</span> Mitteilungen
+    </a>
   </nav>
+
+  <div class="px-3 pt-4 border-t border-zinc-100 space-y-1 text-[13px] font-medium">
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="archive.html">
+      <span class="material-symbols-outlined text-[18px]">inventory_2</span> Archiv
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded" href="settings.html">
+      <span class="material-symbols-outlined text-[18px]">settings</span> Einstellungen
+    </a>
+  </div>
 </aside>
 
-<!-- Main -->
-<main class="ml-64">
-
-<!-- Header -->
-<header class="flex justify-between items-center px-6 h-14 border-b bg-white">
-  <h1 class="font-bold">Weekly Meeting</h1>
-
-  <div class="flex gap-3">
-    <button id="completeWeekly" class="bg-brand-orange text-white px-4 py-1 text-sm rounded">
+<!-- ───── HEADER ───── -->
+<header class="bg-white/80 backdrop-blur-md fixed top-0 right-0 left-64 z-30 flex items-center justify-between px-6 h-14 border-b border-zinc-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+  <div class="flex items-center gap-4">
+    <span class="text-lg font-black tracking-tighter">IntraHT</span>
+    <span class="text-zinc-300">|</span>
+    <h2 class="text-sm font-semibold">Weekly Meeting</h2>
+    <span id="weekLabel" class="text-xs text-zinc-400 font-medium"></span>
+  </div>
+  <div class="flex items-center gap-3">
+    <button id="logoutButton" class="flex items-center justify-center w-8 h-8 rounded hover:bg-zinc-50">
+      <span class="material-symbols-outlined text-zinc-500 text-[20px]">logout</span>
+    </button>
+    <button id="completeWeekly" class="bg-brand-orange text-white px-4 py-1.5 rounded-lg text-sm font-semibold active:scale-95 transition-transform">
       Meeting abschließen
     </button>
+    <div id="userInitials" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-[11px] font-bold">HT</div>
   </div>
 </header>
 
-<!-- Content -->
-<div class="grid grid-cols-12 gap-6 p-6">
+<!-- ───── MAIN ───── -->
+<main class="ml-64 min-h-screen">
+<div class="pt-20 px-8 pb-12">
 
-<!-- Agenda -->
-<div class="col-span-3 bg-white p-4 border rounded">
+  <!-- Page header -->
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <nav class="flex items-center gap-2 mb-2 text-xs font-bold text-zinc-400 uppercase tracking-wider">
+        <span>Operations</span>
+        <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+        <span class="text-zinc-950">Weeklies</span>
+      </nav>
+      <h2 class="text-[32px] leading-10 font-bold tracking-tight">Weekly Planner</h2>
+      <p class="text-sm text-secondary mt-1">Agenda, Aufgaben, Entscheidungen, Carry-over und Protokoll.</p>
+    </div>
 
-<h3 class="text-xs font-bold mb-4 uppercase text-zinc-500">Agenda</h3>
+    <!-- Week selector -->
+    <div class="flex items-center bg-white border border-zinc-200 rounded-lg p-1 gap-1">
+      <button id="prevWeek" class="p-1.5 rounded hover:bg-zinc-50">
+        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      </button>
+      <div id="weekTabs" class="flex gap-1"></div>
+      <button id="nextWeek" class="p-1.5 rounded hover:bg-zinc-50">
+        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+      </button>
+    </div>
+  </div>
 
-<div id="agendaList" class="space-y-3">
+  <!-- 3-column layout -->
+  <div class="grid grid-cols-12 gap-6">
 
-<div class="p-3 border-l-4 border-brand-orange bg-zinc-50">
-  <div class="text-sm font-semibold">Thema Beispiel</div>
-  <div class="text-xs text-zinc-500">Verantwortlich: Sascha</div>
+    <!-- ── COL 1: Agenda ── -->
+    <div class="col-span-3 space-y-4">
+
+      <section class="bg-white border border-zinc-100 rounded-lg card-shadow">
+        <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-widest">Agenda</h3>
+          <span id="agendaCount" class="text-[10px] text-zinc-400 font-medium">0 Punkte</span>
+        </div>
+        <div id="agendaList" class="p-4 space-y-2"></div>
+        <div class="px-4 pb-4">
+          <button id="addAgenda" class="w-full border border-dashed border-zinc-200 rounded p-2 text-xs text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 transition-colors flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">add</span> Thema hinzufügen
+          </button>
+        </div>
+      </section>
+
+      <!-- Teilnehmer -->
+      <section class="bg-white border border-zinc-100 rounded-lg card-shadow">
+        <div class="px-5 py-4 border-b border-zinc-100">
+          <h3 class="text-xs font-bold uppercase tracking-widest">Teilnehmer</h3>
+        </div>
+        <div id="participantList" class="p-4 flex flex-wrap gap-2">
+          <!-- rendered dynamically -->
+        </div>
+        <div class="px-4 pb-4">
+          <button id="addParticipant" class="w-full border border-dashed border-zinc-200 rounded p-2 text-xs text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 transition-colors">
+            + Teilnehmer
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── COL 2: Workspace ── -->
+    <div class="col-span-6 space-y-6">
+
+      <!-- Weekly Tasks (linked to TaskStore) -->
+      <section class="bg-white border border-zinc-100 rounded-lg card-shadow">
+        <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px] text-brand-orange">assignment_turned_in</span>
+            Aufgaben
+          </h3>
+          <a href="tasks.html" class="text-[11px] text-zinc-400 hover:text-black font-bold uppercase flex items-center gap-1">
+            Alle Aufgaben <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- Task input -->
+        <div class="px-5 py-4 border-b border-zinc-50 flex gap-2">
+          <select id="weeklyTaskAssignee" class="text-xs border-zinc-200 rounded focus:ring-0 focus:border-black">
+            <option value="HT">HT</option>
+            <option value="SA">SA</option>
+            <option value="MK">MK</option>
+            <option value="JB">JB</option>
+          </select>
+          <select id="weeklyTaskPriority" class="text-xs border-zinc-200 rounded focus:ring-0 focus:border-black">
+            <option value="medium">Mittel</option>
+            <option value="low">Niedrig</option>
+            <option value="high">Hoch</option>
+            <option value="critical">Kritisch</option>
+          </select>
+          <input id="weeklyTaskInput"
+            class="flex-1 border-zinc-200 rounded text-sm focus:ring-0 focus:border-black"
+            placeholder="Neue Aufgabe (Enter)..." type="text" />
+          <button id="addWeeklyTask" class="bg-black text-white px-3 py-1.5 rounded text-xs font-bold">
+            <span class="material-symbols-outlined text-[16px]">add</span>
+          </button>
+        </div>
+
+        <!-- Filter: Meine / Alle -->
+        <div class="px-5 py-2 border-b border-zinc-50 flex items-center gap-2">
+          <span class="text-[11px] text-zinc-400 font-medium mr-1">Anzeigen:</span>
+          <button class="weekly-scope-btn active text-[11px] font-bold px-2.5 py-1 rounded bg-black text-white" data-scope="mine">Meine</button>
+          <button class="weekly-scope-btn text-[11px] font-bold px-2.5 py-1 rounded text-zinc-500 hover:bg-zinc-50" data-scope="all">Alle</button>
+        </div>
+
+        <!-- Task list from store -->
+        <div id="weeklyTaskList" class="divide-y divide-zinc-50 max-h-80 overflow-y-auto"></div>
+
+        <!-- Done section -->
+        <div class="border-t border-zinc-100">
+          <button id="weeklyDoneToggle" class="w-full px-5 py-2.5 flex items-center justify-between text-xs text-zinc-400 hover:bg-zinc-50 font-bold uppercase tracking-widest">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[14px] text-green-500">check_circle</span>
+              Erledigte
+              <span id="weeklyDoneBadge" class="bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded-full text-[10px]">0</span>
+            </span>
+            <span id="weeklyDoneChevron" class="material-symbols-outlined text-[16px]">expand_more</span>
+          </button>
+          <div id="weeklyDoneList" class="hidden divide-y divide-zinc-50 bg-zinc-50/50 max-h-48 overflow-y-auto"></div>
+        </div>
+      </section>
+
+      <!-- Entscheidungen -->
+      <section class="bg-white border border-zinc-100 rounded-lg card-shadow">
+        <div class="px-5 py-4 border-b border-zinc-100">
+          <h3 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">gavel</span>
+            Entscheidungen
+          </h3>
+        </div>
+        <div class="px-5 py-4 border-b border-zinc-50 flex gap-2">
+          <input id="decisionInput" class="flex-1 border-zinc-200 rounded text-sm focus:ring-0 focus:border-black" placeholder="Entscheidung festhalten (Enter)..." type="text" />
+          <button id="addDecision" class="bg-black text-white px-3 py-1.5 rounded text-xs font-bold">+</button>
+        </div>
+        <div id="decisionList" class="p-4 space-y-2 max-h-48 overflow-y-auto"></div>
+      </section>
+
+      <!-- Kommentare -->
+      <section class="bg-white border border-zinc-100 rounded-lg card-shadow">
+        <div class="px-5 py-4 border-b border-zinc-100">
+          <h3 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">chat</span>
+            Kommentare &amp; Notizen
+          </h3>
+        </div>
+        <div id="commentList" class="p-4 space-y-3 max-h-60 overflow-y-auto"></div>
+        <div class="px-4 pb-4 flex gap-2">
+          <input id="commentInput" class="flex-1 border-zinc-200 rounded text-sm focus:ring-0 focus:border-black" placeholder="Kommentar schreiben (Enter)..." type="text" />
+          <button id="addComment" class="bg-zinc-900 text-white px-3 py-1.5 rounded text-xs font-bold">+</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── COL 3: Side panel ── -->
+    <div class="col-span-3 space-y-4">
+
+      <!-- Carry-over -->
+      <section class="bg-white border border-zinc-100 rounded-lg card-shadow">
+        <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px] text-brand-orange">sync_alt</span>
+            Carry-over
+          </h3>
+          <span id="carryBadge" class="carry-badge">0</span>
+        </div>
+        <div id="carryOverList" class="p-4 space-y-2 max-h-60 overflow-y-auto">
+          <p class="text-xs text-zinc-400">Keine offenen Aufgaben aus der Vorwoche.</p>
+        </div>
+      </section>
+
+      <!-- Protokoll + Export -->
+      <section class="bg-zinc-950 text-white rounded-lg card-shadow p-5">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">Protokoll</h3>
+
+        <div class="space-y-3 mb-4">
+          <div>
+            <p class="text-[10px] text-zinc-500 uppercase font-bold">Datum</p>
+            <p id="protDate" class="text-sm font-semibold mt-0.5">—</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-zinc-500 uppercase font-bold">Aufgaben besprochen</p>
+            <p id="protTasks" class="text-sm font-semibold mt-0.5">0</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-zinc-500 uppercase font-bold">Entscheidungen</p>
+            <p id="protDecisions" class="text-sm font-semibold mt-0.5">0</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-zinc-500 uppercase font-bold">Carry-over</p>
+            <p id="protCarry" class="text-sm font-semibold mt-0.5">0 Punkte</p>
+          </div>
+        </div>
+
+        <button id="exportPdf" class="w-full border border-zinc-700 hover:border-zinc-500 text-xs font-bold uppercase tracking-widest py-2.5 rounded mt-2">
+          PDF exportieren
+        </button>
+      </section>
+
+    </div>
+  </div>
 </div>
-
-</div>
-
-<button id="addAgenda" class="mt-4 w-full border-dashed border p-2 text-sm">
-  + Thema hinzufügen
-</button>
-
-</div>
-
-<!-- Workspace -->
-<div class="col-span-6 bg-white p-6 border rounded flex flex-col gap-6">
-
-<!-- Aufgaben -->
-<div>
-<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Aufgaben</h3>
-
-<input id="newTaskInput" placeholder="Neue Aufgabe eingeben..."
-class="w-full border p-3 rounded mb-3"/>
-
-<div id="taskList" class="space-y-2">
-
-<div class="flex items-center gap-2">
-<input type="checkbox"/>
-<span class="text-sm">Beispiel Aufgabe</span>
-</div>
-
-</div>
-</div>
-
-<!-- Entscheidungen -->
-<div>
-<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Entscheidungen</h3>
-
-<input id="decisionInput" placeholder="Entscheidung festhalten..."
-class="w-full border p-3 rounded mb-3"/>
-
-<div id="decisionList" class="space-y-2 text-sm"></div>
-</div>
-
-<!-- Kommentare -->
-<div>
-<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Kommentare</h3>
-
-<div id="commentList" class="space-y-3 mb-3"></div>
-
-<input id="commentInput" placeholder="Kommentar schreiben..."
-class="w-full border p-3 rounded"/>
-</div>
-
-</div>
-
-<!-- Right Panel -->
-<div class="col-span-3 bg-white p-4 border rounded flex flex-col gap-6">
-
-<!-- Carry Over -->
-<div>
-<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Carry Over</h3>
-
-<div id="carryOverList" class="text-sm text-zinc-600">
-Offene Aufgaben werden automatisch übernommen.
-</div>
-</div>
-
-<!-- Protokoll -->
-<div>
-<h3 class="text-xs font-bold uppercase text-zinc-500 mb-2">Protokoll</h3>
-
-<button id="exportPdf" class="w-full border p-2 text-sm">
-PDF exportieren
-</button>
-</div>
-
-</div>
-
-</div>
-
 </main>
 
+<!-- ──────────────────────────────────────────────────────
+     SHARED TASK STORE (identical copy from tasks.html)
+     In production: extract to /js/taskStore.js and include
+──────────────────────────────────────────────────────── -->
 <script>
+const TaskStore = (() => {
+  const KEY = "intraht_tasks_v1";
+  const ACTIVITY_KEY = "intraht_task_activity_v1";
 
-/* ===== TASKS ===== */
-document.getElementById("newTaskInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const val = e.target.value.trim();
-    if (!val) return;
-
-    const el = document.createElement("div");
-    el.className = "flex items-center gap-2";
-    el.innerHTML = `<input type="checkbox"><span>${val}</span>`;
-
-    document.getElementById("taskList").appendChild(el);
-    e.target.value = "";
+  function getAll() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch { return []; }
   }
+  function saveAll(tasks) { localStorage.setItem(KEY, JSON.stringify(tasks)); }
+  function getActivity() {
+    try { return JSON.parse(localStorage.getItem(ACTIVITY_KEY)) || []; }
+    catch { return []; }
+  }
+  function logActivity(action, taskTitle) {
+    const log = getActivity();
+    log.unshift({ action, taskTitle, at: new Date().toISOString() });
+    if (log.length > 40) log.length = 40;
+    localStorage.setItem(ACTIVITY_KEY, JSON.stringify(log));
+  }
+  function create(data) {
+    const tasks = getAll();
+    const task = {
+      id: "t_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+      title: data.title,
+      status: data.status || "open",
+      priority: data.priority || "medium",
+      assignee: data.assignee || "",
+      due_date: data.due_date || "",
+      source: data.source || "manual",
+      weekly_id: data.weekly_id || null,
+      created_at: new Date().toISOString()
+    };
+    tasks.unshift(task);
+    saveAll(tasks);
+    logActivity("Erstellt (Weekly)", task.title);
+    return task;
+  }
+  function update(id, changes) {
+    const tasks = getAll();
+    const idx = tasks.findIndex(t => t.id === id);
+    if (idx === -1) return null;
+    Object.assign(tasks[idx], changes);
+    saveAll(tasks);
+    logActivity("Aktualisiert", tasks[idx].title);
+    return tasks[idx];
+  }
+  function remove(id) {
+    const tasks = getAll();
+    const idx = tasks.findIndex(t => t.id === id);
+    if (idx === -1) return;
+    const [removed] = tasks.splice(idx, 1);
+    saveAll(tasks);
+    logActivity("Gelöscht", removed.title);
+  }
+  function filter({ scope, assignee, status }) {
+    let tasks = getAll();
+    if (status) tasks = tasks.filter(t => t.status === status);
+    if (scope === "mine" && assignee) tasks = tasks.filter(t => !t.assignee || t.assignee === assignee);
+    return tasks;
+  }
+  return { getAll, create, update, remove, filter };
+})();
+
+/* =========================================================
+   WEEKLY STORE
+   Separate localStorage for weekly-specific data (agenda, decisions, comments)
+========================================================= */
+const WeeklyStore = (() => {
+  const KEY = "intraht_weeklies_v1";
+
+  function getAll() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+    catch { return {}; }
+  }
+  function getWeek(weekKey) {
+    const all = getAll();
+    if (!all[weekKey]) {
+      all[weekKey] = { agenda: [], decisions: [], comments: [], participants: ["HT", "SA", "MK"] };
+      localStorage.setItem(KEY, JSON.stringify(all));
+    }
+    return all[weekKey];
+  }
+  function saveWeek(weekKey, data) {
+    const all = getAll();
+    all[weekKey] = data;
+    localStorage.setItem(KEY, JSON.stringify(all));
+  }
+  return { getWeek, saveWeek };
+})();
+
+/* =========================================================
+   WEEK NAVIGATION
+========================================================= */
+function getMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function weekKey(monday) {
+  return monday.toISOString().slice(0,10);
+}
+
+function weekLabel(monday) {
+  const friday = new Date(monday);
+  friday.setDate(friday.getDate() + 4);
+  const fmt = { day:"2-digit", month:"2-digit" };
+  return `KW ${getKW(monday)} · ${monday.toLocaleDateString("de-DE", fmt)} – ${friday.toLocaleDateString("de-DE", fmt)}`;
+}
+
+function getKW(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+let currentMonday = getMonday(new Date());
+let activeUser = "HT";
+let weeklyScope = "mine";
+let doneOpen = false;
+
+function renderWeekTabs() {
+  const container = document.getElementById("weekTabs");
+  container.innerHTML = "";
+
+  // Show current week tab
+  const btn = document.createElement("button");
+  btn.className = "week-tab active text-xs font-bold px-3 py-1.5 rounded";
+  btn.textContent = `KW ${getKW(currentMonday)}`;
+  container.appendChild(btn);
+
+  document.getElementById("weekLabel").textContent = weekLabel(currentMonday);
+  document.getElementById("protDate").textContent = weekLabel(currentMonday);
+}
+
+/* =========================================================
+   AGENDA
+========================================================= */
+function renderAgenda() {
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  const container = document.getElementById("agendaList");
+  container.innerHTML = "";
+
+  document.getElementById("agendaCount").textContent = `${data.agenda.length} Punkt${data.agenda.length !== 1 ? "e" : ""}`;
+
+  data.agenda.forEach((item, idx) => {
+    const el = document.createElement("div");
+    el.className = "row-anim flex items-start gap-2 p-3 border-l-4 border-brand-orange bg-zinc-50 rounded-r group";
+    el.innerHTML = `
+      <div class="flex-1">
+        <p class="text-xs font-semibold">${escHtml(item.title)}</p>
+        ${item.owner ? `<p class="text-[10px] text-zinc-500 mt-0.5">Verantwortlich: ${escHtml(item.owner)}</p>` : ""}
+      </div>
+      <button class="opacity-0 group-hover:opacity-100 text-zinc-300 hover:text-red-500 transition-all" data-del-agenda="${idx}">
+        <span class="material-symbols-outlined text-[14px]">close</span>
+      </button>
+    `;
+    container.appendChild(el);
+  });
+
+  document.querySelectorAll("[data-del-agenda]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const d = WeeklyStore.getWeek(wk);
+      d.agenda.splice(parseInt(btn.dataset.delAgenda), 1);
+      WeeklyStore.saveWeek(wk, d);
+      renderAgenda();
+    });
+  });
+}
+
+document.getElementById("addAgenda").addEventListener("click", () => {
+  const title = prompt("Agenda-Thema:");
+  if (!title?.trim()) return;
+  const owner = prompt("Verantwortlich (Kürzel, optional):");
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  data.agenda.push({ title: title.trim(), owner: owner?.trim() || "" });
+  WeeklyStore.saveWeek(wk, data);
+  renderAgenda();
 });
 
-/* ===== DECISIONS ===== */
-document.getElementById("decisionInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const val = e.target.value.trim();
-    if (!val) return;
+/* =========================================================
+   PARTICIPANTS
+========================================================= */
+function renderParticipants() {
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  const container = document.getElementById("participantList");
+  container.innerHTML = "";
 
+  data.participants.forEach((p, idx) => {
     const el = document.createElement("div");
-    el.textContent = val;
+    el.className = "group relative";
+    el.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[11px] font-bold cursor-default" title="${escHtml(p)}">${escHtml(p)}</div>
+      <button class="absolute -top-1 -right-1 hidden group-hover:flex w-4 h-4 bg-red-500 text-white rounded-full items-center justify-center" data-del-part="${idx}">
+        <span class="material-symbols-outlined" style="font-size:10px">close</span>
+      </button>
+    `;
+    container.appendChild(el);
+  });
 
-    document.getElementById("decisionList").appendChild(el);
-    e.target.value = "";
-  }
+  document.querySelectorAll("[data-del-part]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const d = WeeklyStore.getWeek(wk);
+      d.participants.splice(parseInt(btn.dataset.delPart), 1);
+      WeeklyStore.saveWeek(wk, d);
+      renderParticipants();
+    });
+  });
+}
+
+document.getElementById("addParticipant").addEventListener("click", () => {
+  const name = prompt("Kürzel / Name:");
+  if (!name?.trim()) return;
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  data.participants.push(name.trim().toUpperCase().slice(0,3));
+  WeeklyStore.saveWeek(wk, data);
+  renderParticipants();
 });
 
-/* ===== COMMENTS ===== */
-document.getElementById("commentInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    const val = e.target.value.trim();
-    if (!val) return;
+/* =========================================================
+   WEEKLY TASKS (from TaskStore)
+========================================================= */
+const prioColors = { low:"bg-lime-400", medium:"bg-orange-400", high:"bg-red-500", critical:"bg-purple-600" };
+const prioLabels = { low:"Niedrig", medium:"Mittel", high:"Hoch", critical:"Kritisch" };
+const statusLabels = {
+  open:"Offen", in_progress:"In Bearbeitung", blocked:"Blockiert",
+  review:"Zur Prüfung", done:"Erledigt", deferred:"Zurückgestellt"
+};
 
-    const el = document.createElement("div");
-    el.className = "bg-zinc-100 p-2 rounded text-sm";
-    el.textContent = val;
+function renderWeeklyTasks() {
+  const active = TaskStore.filter({ scope: weeklyScope, assignee: activeUser, status: "" })
+    .filter(t => t.status !== "done");
+  const done = TaskStore.getAll().filter(t => t.status === "done");
 
-    document.getElementById("commentList").appendChild(el);
-    e.target.value = "";
+  const container = document.getElementById("weeklyTaskList");
+  const doneContainer = document.getElementById("weeklyDoneList");
+  container.innerHTML = "";
+  doneContainer.innerHTML = "";
+
+  if (active.length === 0) {
+    container.innerHTML = `<div class="px-5 py-4 text-xs text-zinc-400">${weeklyScope === "mine" ? "Keine eigenen Aufgaben. Wechsle zu „Alle"." : "Keine offenen Aufgaben."}</div>`;
   }
-});
 
-/* ===== AGENDA ===== */
-document.getElementById("addAgenda").onclick = () => {
-  const title = prompt("Thema:");
-  if (!title) return;
+  active.forEach(task => container.appendChild(makeWeeklyTaskRow(task, false)));
+  done.forEach(task => doneContainer.appendChild(makeWeeklyTaskRow(task, true)));
 
+  document.getElementById("weeklyDoneBadge").textContent = done.length;
+  updateProtocol();
+}
+
+function makeWeeklyTaskRow(task, isDone) {
   const el = document.createElement("div");
-  el.className = "p-3 border-l-4 border-brand-orange bg-zinc-50";
-  el.innerHTML = `<div class="text-sm font-semibold">${title}</div>`;
+  el.className = "weekly-task-row row-anim flex items-center gap-3 px-5 py-3 hover:bg-zinc-50 group" + (isDone ? " weekly-task-done" : "");
+  el.innerHTML = `
+    <input type="checkbox" ${isDone ? "checked" : ""} data-id="${task.id}"
+      class="weekly-task-check border-zinc-300 rounded focus:ring-0 flex-shrink-0 cursor-pointer" />
+    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${prioColors[task.priority] || "bg-zinc-300"}"></span>
+    <label class="flex-1 text-sm cursor-pointer select-none">${escHtml(task.title)}</label>
+    <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      ${task.assignee ? `<span class="w-6 h-6 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[9px] font-bold">${escHtml(task.assignee)}</span>` : ""}
+      <select class="weekly-status-sel text-[10px] border-zinc-200 rounded focus:ring-0 py-0.5" data-id="${task.id}">
+        ${Object.entries(statusLabels).map(([v,l]) => `<option value="${v}" ${task.status===v?"selected":""}>${l}</option>`).join("")}
+      </select>
+      <button class="weekly-del text-zinc-300 hover:text-red-500" data-id="${task.id}">
+        <span class="material-symbols-outlined text-[14px]">delete</span>
+      </button>
+    </div>
+  `;
+  return el;
+}
 
-  document.getElementById("agendaList").appendChild(el);
-};
+function attachWeeklyTaskHandlers() {
+  document.querySelectorAll(".weekly-task-check").forEach(cb => {
+    cb.addEventListener("change", e => {
+      TaskStore.update(e.target.dataset.id, { status: e.target.checked ? "done" : "open" });
+      renderWeeklyTasks();
+    });
+  });
+  document.querySelectorAll(".weekly-status-sel").forEach(sel => {
+    sel.addEventListener("change", e => {
+      TaskStore.update(e.target.dataset.id, { status: e.target.value });
+      renderWeeklyTasks();
+    });
+  });
+  document.querySelectorAll(".weekly-del").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const task = TaskStore.getAll().find(t => t.id === id);
+      if (task && confirm(`„${task.title}" löschen?`)) {
+        TaskStore.remove(id);
+        renderWeeklyTasks();
+      }
+    });
+  });
+}
 
-/* ===== PDF EXPORT (Placeholder) ===== */
-document.getElementById("exportPdf").onclick = () => {
-  alert("PDF Export wird später implementiert");
-};
+// Observe DOM mutations to re-attach handlers after render
+const taskObserver = new MutationObserver(() => attachWeeklyTaskHandlers());
+taskObserver.observe(document.getElementById("weeklyTaskList"), { childList: true });
+taskObserver.observe(document.getElementById("weeklyDoneList"), { childList: true });
 
-/* ===== COMPLETE WEEKLY ===== */
-document.getElementById("completeWeekly").onclick = () => {
-  if (confirm("Meeting wirklich abschließen?")) {
-    alert("Weekly abgeschlossen (API folgt)");
+// Add task from weekly
+function addWeeklyTask() {
+  const val = document.getElementById("weeklyTaskInput").value.trim();
+  if (!val) return;
+  TaskStore.create({
+    title: val,
+    priority: document.getElementById("weeklyTaskPriority").value,
+    assignee: document.getElementById("weeklyTaskAssignee").value,
+    source: "weekly",
+    weekly_id: weekKey(currentMonday)
+  });
+  document.getElementById("weeklyTaskInput").value = "";
+  renderWeeklyTasks();
+}
+
+document.getElementById("addWeeklyTask").addEventListener("click", addWeeklyTask);
+document.getElementById("weeklyTaskInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") addWeeklyTask();
+});
+
+// Scope toggle
+document.querySelectorAll(".weekly-scope-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".weekly-scope-btn").forEach(b => {
+      b.classList.remove("active", "bg-black", "text-white");
+      b.classList.add("text-zinc-500", "hover:bg-zinc-50");
+    });
+    btn.classList.add("active", "bg-black", "text-white");
+    btn.classList.remove("text-zinc-500", "hover:bg-zinc-50");
+    weeklyScope = btn.dataset.scope;
+    renderWeeklyTasks();
+  });
+});
+
+// Done toggle
+document.getElementById("weeklyDoneToggle").addEventListener("click", () => {
+  doneOpen = !doneOpen;
+  document.getElementById("weeklyDoneList").classList.toggle("hidden", !doneOpen);
+  document.getElementById("weeklyDoneChevron").style.transform = doneOpen ? "rotate(180deg)" : "";
+});
+
+/* =========================================================
+   DECISIONS
+========================================================= */
+function renderDecisions() {
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  const container = document.getElementById("decisionList");
+  container.innerHTML = "";
+
+  if (!data.decisions.length) {
+    container.innerHTML = `<p class="text-xs text-zinc-400">Noch keine Entscheidungen.</p>`;
+    return;
   }
-};
+  data.decisions.forEach((d, idx) => {
+    const el = document.createElement("div");
+    el.className = "row-anim flex items-start gap-2 bg-zinc-50 border border-zinc-100 rounded p-3 group";
+    el.innerHTML = `
+      <span class="material-symbols-outlined text-[14px] text-zinc-400 mt-0.5 flex-shrink-0">gavel</span>
+      <p class="flex-1 text-xs">${escHtml(d)}</p>
+      <button class="opacity-0 group-hover:opacity-100 text-zinc-300 hover:text-red-500" data-del-dec="${idx}">
+        <span class="material-symbols-outlined text-[14px]">close</span>
+      </button>
+    `;
+    container.appendChild(el);
+  });
+  document.querySelectorAll("[data-del-dec]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const d = WeeklyStore.getWeek(wk);
+      d.decisions.splice(parseInt(btn.dataset.delDec), 1);
+      WeeklyStore.saveWeek(wk, d);
+      renderDecisions();
+      updateProtocol();
+    });
+  });
+}
 
+function addDecision() {
+  const val = document.getElementById("decisionInput").value.trim();
+  if (!val) return;
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  data.decisions.push(val);
+  WeeklyStore.saveWeek(wk, data);
+  document.getElementById("decisionInput").value = "";
+  renderDecisions();
+  updateProtocol();
+}
+document.getElementById("addDecision").addEventListener("click", addDecision);
+document.getElementById("decisionInput").addEventListener("keydown", e => { if (e.key === "Enter") addDecision(); });
+
+/* =========================================================
+   COMMENTS
+========================================================= */
+function renderComments() {
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  const container = document.getElementById("commentList");
+  container.innerHTML = "";
+
+  if (!data.comments.length) {
+    container.innerHTML = `<p class="text-xs text-zinc-400">Noch keine Kommentare.</p>`;
+    return;
+  }
+  data.comments.forEach((c, idx) => {
+    const el = document.createElement("div");
+    el.className = "row-anim flex gap-3 items-start group";
+    el.innerHTML = `
+      <div class="w-7 h-7 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">${escHtml(activeUser)}</div>
+      <div class="flex-1 bg-zinc-50 rounded-lg px-3 py-2">
+        <p class="text-xs">${escHtml(c.text)}</p>
+        <p class="text-[10px] text-zinc-400 mt-1">${new Date(c.at).toLocaleTimeString("de-DE", {hour:"2-digit",minute:"2-digit"})}</p>
+      </div>
+      <button class="opacity-0 group-hover:opacity-100 text-zinc-300 hover:text-red-500 mt-1" data-del-comment="${idx}">
+        <span class="material-symbols-outlined text-[14px]">close</span>
+      </button>
+    `;
+    container.appendChild(el);
+  });
+  document.querySelectorAll("[data-del-comment]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const d = WeeklyStore.getWeek(wk);
+      d.comments.splice(parseInt(btn.dataset.delComment), 1);
+      WeeklyStore.saveWeek(wk, d);
+      renderComments();
+    });
+  });
+}
+
+function addComment() {
+  const val = document.getElementById("commentInput").value.trim();
+  if (!val) return;
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  data.comments.push({ text: val, author: activeUser, at: new Date().toISOString() });
+  WeeklyStore.saveWeek(wk, data);
+  document.getElementById("commentInput").value = "";
+  renderComments();
+}
+document.getElementById("addComment").addEventListener("click", addComment);
+document.getElementById("commentInput").addEventListener("keydown", e => { if (e.key === "Enter") addComment(); });
+
+/* =========================================================
+   CARRY-OVER
+   Offene Aufgaben aus der Vorwoche
+========================================================= */
+function renderCarryOver() {
+  const prevMonday = new Date(currentMonday);
+  prevMonday.setDate(prevMonday.getDate() - 7);
+  const prevKey = weekKey(prevMonday);
+
+  // All open tasks that were created in or before last week
+  const carry = TaskStore.getAll().filter(t => {
+    if (t.status === "done") return false;
+    if (!t.created_at) return false;
+    return new Date(t.created_at) < currentMonday;
+  });
+
+  const container = document.getElementById("carryOverList");
+  container.innerHTML = "";
+  document.getElementById("carryBadge").textContent = carry.length;
+  document.getElementById("protCarry").textContent = `${carry.length} Punkt${carry.length !== 1 ? "e" : ""}`;
+
+  if (!carry.length) {
+    container.innerHTML = `<p class="text-xs text-zinc-400">Keine offenen Aufgaben aus der Vorwoche.</p>`;
+    return;
+  }
+
+  carry.forEach(task => {
+    const el = document.createElement("div");
+    el.className = "row-anim flex items-center gap-2 p-2 bg-orange-50 border border-orange-100 rounded";
+    el.innerHTML = `
+      <span class="material-symbols-outlined text-[14px] text-brand-orange">sync_alt</span>
+      <p class="flex-1 text-xs font-medium">${escHtml(task.title)}</p>
+      ${task.assignee ? `<span class="text-[9px] text-zinc-500 font-bold">${escHtml(task.assignee)}</span>` : ""}
+    `;
+    container.appendChild(el);
+  });
+}
+
+/* =========================================================
+   PROTOCOL SUMMARY
+========================================================= */
+function updateProtocol() {
+  const wk = weekKey(currentMonday);
+  const data = WeeklyStore.getWeek(wk);
+  const allTasks = TaskStore.getAll();
+  const weeklyTasks = allTasks.filter(t => t.weekly_id === wk || t.source === "weekly");
+  document.getElementById("protTasks").textContent = weeklyTasks.length;
+  document.getElementById("protDecisions").textContent = data.decisions.length;
+}
+
+/* =========================================================
+   WEEK NAVIGATION
+========================================================= */
+document.getElementById("prevWeek").addEventListener("click", () => {
+  currentMonday.setDate(currentMonday.getDate() - 7);
+  renderAll();
+});
+document.getElementById("nextWeek").addEventListener("click", () => {
+  currentMonday.setDate(currentMonday.getDate() + 7);
+  renderAll();
+});
+
+/* =========================================================
+   COMPLETE WEEKLY
+========================================================= */
+document.getElementById("completeWeekly").addEventListener("click", () => {
+  if (!confirm("Weekly wirklich abschließen? Nicht erledigte Aufgaben bleiben für die nächste Woche sichtbar.")) return;
+  alert("Weekly abgeschlossen. Carry-over wird beim nächsten Öffnen angezeigt.");
+});
+
+/* =========================================================
+   EXPORT (placeholder)
+========================================================= */
+document.getElementById("exportPdf").addEventListener("click", () => {
+  alert("PDF-Export wird implementiert. Protokolldaten sind bereits gesammelt.");
+});
+
+/* =========================================================
+   UTILS
+========================================================= */
+function escHtml(str) {
+  return (str || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* =========================================================
+   FULL RENDER
+========================================================= */
+function renderAll() {
+  renderWeekTabs();
+  renderAgenda();
+  renderParticipants();
+  renderWeeklyTasks();
+  renderDecisions();
+  renderComments();
+  renderCarryOver();
+  updateProtocol();
+}
+
+/* =========================================================
+   AUTH + INIT
+========================================================= */
+async function requireAuth() {
+  try {
+    const res = await fetch("api/me.php", { headers: { "Accept": "application/json" } });
+    if (!res.ok) return { name: "HT Management" };
+    const r = await res.json();
+    return r.success && r.user ? r.user : { name: "HT Management" };
+  } catch {
+    return { name: "HT Management" };
+  }
+}
+
+function initialsFromUser(user) {
+  const parts = (user.name || user.email || "HT").split(/[ .@_-]+/).filter(Boolean);
+  return parts.slice(0, 2).map(p => p[0].toUpperCase()).join("");
+}
+
+(async function init() {
+  const user = await requireAuth();
+  activeUser = initialsFromUser(user);
+  document.getElementById("userInitials").textContent = activeUser;
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    try { await fetch("api/logout.php", { method: "POST" }); } finally { window.location.href = "index.html"; }
+  });
+  renderAll();
+})();
 </script>
 
 </body>
